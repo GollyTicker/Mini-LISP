@@ -14,32 +14,45 @@ AST = atom
 
 list = empty | AST list
 */
-class AST {
-  // virtual string to_string();
+struct AST {
+  virtual string to_string();
+  //virtual string lispString();
 };
 
-class Atom: public AST {
+struct Atom: AST {
   string str = "";
   Atom(string st);
+  string to_string() override;
 };
 
 Atom::Atom(string st) {
   str = st;
 }
 
-class List: public AST {
-  public:
-    bool empty = true;
-    AST* head = NULL; // NULL if empty is true
-    List* tail = NULL; // NULL if empty is true
-    List();
-    List(AST* elem, List* tail);
+string Atom::to_string(){
+  return "Atom(" + str + ")";
+}
+
+struct List: AST {
+  bool empty = true;
+  AST* head = NULL; // NULL if empty is true
+  List* tail = NULL; // NULL if empty is true
+  List();
+  List(AST* elem, List* tail);
+  string to_string() override;
 };
 
 List::List(AST* x, List* xs) {
   empty = false;
   head = x;
   ;tail = xs;
+}
+
+string List::to_string() {
+  if (empty) return "[]";
+  else {
+    return "[" + head->to_string() + "," + tail->to_string().substr(1);
+  }
 }
 
 int main(int k, char ** args){
