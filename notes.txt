@@ -1,0 +1,1 @@
+Perhaps we could also implement a variant of lisp, where evaluation of an unknown symbol just stay the symbol itself (like in Wolfram Mathematica).
