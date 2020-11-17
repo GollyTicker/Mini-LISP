@@ -15,5 +15,5 @@ The C++ implements a mini-LISP interpreter consisting of:
 * (`set!`)
 
 The mini-LISP interpreter implements a larger LISP additionally containing:
-* quasiquotation
-* (algebraic data types)
+* `quasiquotation`
+* (`algebraic data types`)
