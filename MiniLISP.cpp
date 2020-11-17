@@ -11,8 +11,8 @@ const bool debug = false;
 
 #include "AST.cpp"
 #include "Parser.cpp"
+#include "Eval.cpp"
 // ^ being lazy and not using header files.
-
 
 
 int main(int k, char ** args){
@@ -29,6 +29,12 @@ int main(int k, char ** args){
     return 0;
   }
 
-  cout << expr->lisp_string() << endl;
+  AST* result = eval(expr);
+  if (!result) {
+    cout << "Error evaluating " << expr->lisp_string() << endl;
+    return 0;
+  }
+
+  cout << result->lisp_string() << endl;
 
 }

@@ -17,3 +17,14 @@ t
 (atom 3)
 (atom (a b c))
 (atom '(a b c))
+
+-- eq
+(eq 1 1)
+(eq 1 2)
+(eq a a)
+(eq a b)
+(eq 'a a)
+(eq () a)
+(eq () ())
+(eq '() ())
+(eq '(a) ())

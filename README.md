@@ -6,7 +6,7 @@ Inspired by [The Roots of LISP](http://languagelog.ldc.upenn.edu/myl/llog/jmc.pd
 The C++ implements a mini-LISP interpreter consisting of:
 * `quote`
 * `atom`
-* `eq`
+* `eq` (atom equality and empty list equality)
 * `car`
 * `cdr`
 * `cons`
