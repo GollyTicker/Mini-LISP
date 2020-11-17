@@ -29,7 +29,8 @@ int main(int k, char ** args){
     return 0;
   }
 
-  AST* result = eval(expr);
+  setup_interpreter();
+  AST* result = Eval(expr);
   if (!result) {
     cout << "Error evaluating " << expr->lisp_string() << endl;
     return 0;

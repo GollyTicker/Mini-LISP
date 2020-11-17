@@ -4,27 +4,45 @@
 '(a b c)
 
 -- atoms and lists
-a
-sdfsr
-213
+'a
+'sdfsr
+'213
 (quote (23 dfs 34))
 (+ 2 3 4)
-()
-t
+'()
+'t
 
 -- atom
 (atom 'a)
-(atom 3)
-(atom (a b c))
+(atom '3)
 (atom '(a b c))
 
 -- eq
-(eq 1 1)
-(eq 1 2)
-(eq a a)
-(eq a b)
-(eq 'a a)
-(eq () a)
-(eq () ())
-(eq '() ())
-(eq '(a) ())
+(eq '1 '1)
+(eq '1 '2)
+(eq 'a 'b)
+(eq 'a 'a)
+(eq '() 'a)
+(eq '() '())
+(eq '(a) '())
+
+-- car
+(car '(a))
+(car '(a b c))
+(car '((a b) d e))
+
+-- cdr
+(cdr '(a))
+(cdr '(a b c))
+(cdr '((a b) (d e) f))
+
+-- cons
+(cons 'a '(b c))
+(cons 'a ())
+(cons '(a b) '(d e))
+
+-- cond
+(cond ('t 'a))
+(cond ('() 'b) ('t 'a))
+(cond ((eq 'a 'b) 'a) ('t 'b))
+(cond ((eq 'a 'a) 'a) ('t 'b))

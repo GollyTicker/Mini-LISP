@@ -16,15 +16,33 @@ t
 t
 t
 ()
-t
 
 -- eq
 t
 ()
-t
 ()
 t
 ()
 t
-t
 ()
+
+-- car
+a
+a
+(a b)
+
+-- cdr
+()
+(b c)
+((d e) f)
+
+-- cons
+(a b c)
+(a)
+((a b) d e)
+
+-- cond
+a
+a
+b
+a

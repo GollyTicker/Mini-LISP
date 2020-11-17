@@ -10,6 +10,7 @@ list = nil | AST list
 struct AST {
   virtual string to_string() { return "error AST::to_string"; };
   virtual string lisp_string() { return "error AST::lisp_string"; }
+  virtual bool is_atom() { return "error AST:is_atom"; }
 };
 
 /* Atom class. uses string as symbol */
@@ -18,6 +19,7 @@ struct Atom: AST {
   Atom(string st) { str = st; };
   virtual string to_string() { return "Atom(" + str + ")"; };
   virtual string lisp_string() { return str; }
+  virtual bool is_atom() { return true; }
 };
 
 /* Single-Linked-List with AST* elements */
@@ -29,6 +31,7 @@ struct List: AST {
   List(AST* elem, List* tail);
   virtual string to_string();
   virtual string lisp_string();
+  virtual bool is_atom() { return false; }
 };
 
 List::List(AST* x, List* xs) {
@@ -47,6 +50,7 @@ string List::to_string() {
 string List::lisp_string() {
   if (empty) return "()";
   else {
+    /* MAYBE-DO: special syntax for quote? */
     return "(" + head->lisp_string() + (tail->empty?"":" ") + tail->lisp_string().substr(1);
   }
 }

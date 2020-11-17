@@ -1,1 +1,4 @@
-Perhaps we could also implement a variant of lisp, where evaluation of an unknown symbol just stay the symbol itself (like in Wolfram Mathematica).
+* Perhaps we could also implement a variant of lisp, where evaluation of an unknown symbol just stay the symbol itself (like in Wolfram Mathematica).
+
+
+* bootstraping thecompiler in the sense, that we can use rewritings to update the language implementation would be a cool idea. it would make it independent of C++ !
