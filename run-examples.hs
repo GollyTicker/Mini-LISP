@@ -18,7 +18,7 @@ processLinewise = do
       do
         Stdout out <- command [Stdin inp] "./MiniLISP" []
         when (out /= ex) $
-          putStrLn ("Expected " ++ show ex ++ ", but got: " ++ show out)
+          putStrLn ("Expected " ++ ex ++ ", but got: " ++ out)
    )
    (lines inputs)
    (lines expected)
