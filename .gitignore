@@ -1,0 +1,4 @@
+# ignore binaries without extension
+*
+!*.*
+!*/
