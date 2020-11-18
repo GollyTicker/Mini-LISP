@@ -20,6 +20,7 @@ struct Atom: AST {
   virtual string to_string() { return "Atom(" + str + ")"; };
   virtual string lisp_string() { return str; }
   virtual bool is_atom() { return true; }
+  bool equals(const Atom* r) { return str.compare(r->str) == 0; }
 };
 
 /* Single-Linked-List with AST* elements */

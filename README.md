@@ -11,6 +11,7 @@ The C++ implements a mini-LISP interpreter consisting of:
 * `cdr`
 * `cons`
 * `cond`
+* `+` and `decr`
 * `lambda`
 * (`set!`)
 

@@ -6,11 +6,13 @@
 -- atoms and lists
 'a
 'sdfsr
+'('d 'a 1)
 '213
 (quote (23 dfs 34))
-(+ 2 3 4)
+(+ '2 '3 '4)
 '()
 't
+(decr '3)
 
 -- atom
 (atom 'a)
@@ -47,3 +49,24 @@
 (cond ('(s) 'a) ('() 'b) ('t 'c))
 (cond ((eq 'a 'b) 'a) ('t 'b))
 (cond ((eq 'a 'a) 'a) ('t 'b))
+((cond ('() '+) ('t 'car)) '(a b c))
+((cond ('() '+) ('t 'quote)) (a b c))
+
+-- lambda
+((lambda () 'a))
+((lambda () (cons '1 '(c d))))
+((lambda (a b) (cons a b)) '1 '(c d))
+((lambda (a) (cons a '(b c))) '1)
+((lambda (a) (cons a '(a c))) '1)
+((lambda (a b) (cons a (cons b ((lambda (b c) (cons b (cons c '()))) '3 '4))) ) '1 '2)
+((lambda (a b) (+ (car a) b)) '(1 x) '2)
+((lambda (x) (cons x (cons x '()))) 'a)
+((lambda (f x) (cons f (cons f (cons x '())))) 'f 'x)
+((lambda (f xs) (cons f (cons f xs))) 'f '(arg1 arg2))
+((lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f (decr n)))))) '+ '2)
+( (lambda (f x) (f f x)) '(lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f f (decr n)))))) '3)
+-- ^ ^ ^ THIS IS COOL! THIS WORKS!!
+-- defined a recursive function using a variant of U-combinator
+-- https://en.wikipedia.org/wiki/Lambda_calculus#Standard_terms
+
+-- label

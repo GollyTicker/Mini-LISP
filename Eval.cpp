@@ -2,6 +2,10 @@
 
 typedef map<string,AST*> Env;
 typedef AST* evalProc(List*, Env);
+
+/* perhaps we can make the evaluation
+cleaner by adding a procedure type to AST? */
+
 // procedure that evaluates an expression using the environment.
 // may change the environment.
 AST* eval(AST* expr, Env env);
@@ -31,25 +35,36 @@ AST* eval(AST* expr, Env env) {
     List* xs = dynamic_cast<List*>(expr);
     if(!xs->empty) {
       AST* hd = xs->head;
-      // head is atom? apply its function, otherwise evaluate head.
-      AST* funcname = (hd->is_atom()) ? hd : eval(hd, env);
-      Atom* at = dynamic_cast<Atom*>(funcname);
-      if (!at) {
-        cout << "Cannot eval head in " << xs->lisp_string() << " to atom." << endl;
-        return NULL;
-      }
+      // head = predefined atom => apply
+      // head = atom => lookup atom and apply
+      // head = lambda => apply lambda
+      // otherwise => evaluate and repeat
 
-      // the atom is either predefined or defined in the environment.
-      if (predefs.count(at->str) >= 1) {
-        return predefs[at->str](xs->tail,env); // eval predefined with tail
+      Atom* atom = dynamic_cast<Atom*>(hd);
+      if (atom) {
+        if (predefs.count(atom->str) >= 1) {
+          return predefs[atom->str](xs->tail,env); // evaluation of args based on primitives
+        }
+        else if (env.count(atom->str) >= 1) {
+          List* eagerArgs = evalList(xs->tail, env); // eager evaluation of args
+          return eval(cons(env[atom->str],eagerArgs),env);
+        }
+        else {
+          cout << "Cannot eval undefined atom in " << xs->lisp_string() << endl;
+          return NULL;
+        }
       }
-      else if (env.count(at->str) >= 1) {
-        List* eagerArgs = evalList(xs->tail, env);
-        return eval(cons(env[at->str],eagerArgs), env);
+      List* fn = dynamic_cast<List*>(hd);
+      Atom* fname = dynamic_cast<Atom*>(tryhead(fn));
+      if (fname && fname->equals(at("lambda"))) { /*fn is lambda */
+        AST* args = tryhead(trytail(fn));
+        AST* body = tryhead(trytail(trytail(fn)));
+        return prim_lambda_apply(args,body,xs->tail,env);
       }
-      else {
-        cout << "Cannot eval atom in " << xs->lisp_string() << ". Missing definition in env." << endl;
-        return NULL;
+      else { /* evaluate fn and repeat */
+        AST* evaledfn = eval(fn, env);
+        // defer evaluation of arguments to next eval
+        return eval(cons(evaledfn,xs->tail),env);
       }
     }
     else { // empty list
@@ -65,3 +80,24 @@ AST* Eval(AST* expr) {
   Env e;
   return eval(expr, e);
 }
+
+
+/*
+lambdas online:
+
+;gnu clisp  2.49.60
+
+(print "Hello, world!")
+
+(print ((lambda () (cons '1 '(c d)))))
+
+(print ((lambda (a b) (cons a b)) '1 '(c d)))
+
+(print ((lambda (x) (cons x (cons x '()))) 'a) )
+
+(print ((lambda (x) (cons x (cons x '()))) (lambda (f x) x)))
+
+; (print (((lambda (x) (cons x (cons x '()))) (lambda (f x) x)) 'a) )
+
+; (print (((lambda (x) (cons x (cons x '()))) (lambda (f x) x)) 'a) )
+*/

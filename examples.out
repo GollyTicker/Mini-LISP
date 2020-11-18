@@ -6,11 +6,13 @@ sdf
 -- atoms and lists
 a
 sdfsr
+('d 'a 1)
 213
 (23 dfs 34)
 9
 ()
 t
+2
 
 -- atom
 t
@@ -47,3 +49,24 @@ a
 c
 b
 a
+a
+(a b c)
+
+-- lambda
+a
+(1 c d)
+(1 c d)
+(1 b c)
+(1 a c)
+(1 2 3 4)
+3
+(a a)
+(f f x)
+(f f arg1 arg2)
+3
+6
+--
+--
+--
+
+-- label
