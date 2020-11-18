@@ -16,9 +16,11 @@ processLinewise = do
   zipWithM_ ( \inp ex ->
     when (length inp > 0 && (take 2 inp /= "--")) $
       do
-        Stdout out <- command [Stdin inp] "./MiniLISP" []
-        when (out /= ex) $
-          putStrLn ("Expected " ++ ex ++ ", but got: " ++ (init out)) -- ignore \n at end
+        Stdout out' <- command [Stdin inp] "./MiniLISP" []
+        let out = init out' -- ignore \n at end
+        if (out /= ex)
+          then putStrLn ("XX | " ++ inp ++ " => " ++ ex ++ ", but got: " ++ out )
+          else putStrLn (":) | " ++ inp ++ " => " ++ ex)
    )
    (lines inputs)
    (lines expected)

@@ -1,33 +1,26 @@
 #include<map>
-#include<set>
 
 typedef map<string,AST*> Env;
-typedef AST* evalProc(AST*, Env);
+typedef AST* evalProc(List*, Env);
 // procedure that evaluates an expression using the environment.
 // may change the environment.
+AST* eval(AST* expr, Env env);
 
-map<string,evalProc*> predefs;
+#include "EvalPrimitives.cpp"
 
-AST* noop(AST* expr, Env env) {
-  return NULL;
-}
-
-void setup_interpreter() {
-  if (predefs.size() == 0){
-    predefs.insert({"quote",&noop});
-    /*predefs.insert("eq");
-    predefs.insert("atom");
-    predefs.insert("cdr");
-    predefs.insert("car");
-    predefs.insert("cond");*/
+List* evalList(List* expr, Env env) {
+  if (expr->empty) return nl;
+  else {
+    AST* headE = eval(expr->head, env);
+    return cons(headE, evalList(expr->tail, env));
   }
 }
 
 AST* eval(AST* expr, Env env) {
-  cout << "eval: " << expr-> lisp_string() << endl;
+  if (debug) cout << "eval: " << expr-> lisp_string() << endl;
 
   if (expr->is_atom()) {
-    Atom* a = (Atom*)expr;
+    Atom* a = dynamic_cast<Atom*>(expr);
     if (env.count(a->str) >= 1) return env[a->str];
     else {
       cout << "Cannot eval atom " << a->lisp_string() << ". Missing definition in env." << endl;
@@ -35,15 +28,32 @@ AST* eval(AST* expr, Env env) {
     }
   }
   else { // expr is list
-    List* xs = (List*)expr;
+    List* xs = dynamic_cast<List*>(expr);
     if(!xs->empty) {
       AST* hd = xs->head;
       // head is atom? apply its function, otherwise evaluate head.
       AST* funcname = (hd->is_atom()) ? hd : eval(hd, env);
-      // TODO: lookup function name. accordingly evaluate arguments or change them.
+      Atom* at = dynamic_cast<Atom*>(funcname);
+      if (!at) {
+        cout << "Cannot eval head in " << xs->lisp_string() << " to atom." << endl;
+        return NULL;
+      }
+
+      // the atom is either predefined or defined in the environment.
+      if (predefs.count(at->str) >= 1) {
+        return predefs[at->str](xs->tail,env); // eval predefined with tail
+      }
+      else if (env.count(at->str) >= 1) {
+        List* eagerArgs = evalList(xs->tail, env);
+        return eval(cons(env[at->str],eagerArgs), env);
+      }
+      else {
+        cout << "Cannot eval atom in " << xs->lisp_string() << ". Missing definition in env." << endl;
+        return NULL;
+      }
     }
     else { // empty list
-      cout << "Cannot evaluate empty list " << xs->lisp_string() << "." << endl;
+      cout << "Cannot eval empty list " << xs->lisp_string() << "." << endl;
       return NULL;
     }
   }

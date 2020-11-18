@@ -38,11 +38,12 @@
 
 -- cons
 (cons 'a '(b c))
-(cons 'a ())
+(cons 'a '())
 (cons '(a b) '(d e))
 
 -- cond
 (cond ('t 'a))
 (cond ('() 'b) ('t 'a))
+(cond ('(s) 'a) ('() 'b) ('t 'c))
 (cond ((eq 'a 'b) 'a) ('t 'b))
 (cond ((eq 'a 'a) 'a) ('t 'b))
