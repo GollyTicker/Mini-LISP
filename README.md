@@ -9,12 +9,14 @@ The C++ implements a mini-LISP interpreter consisting of:
 * `eq` (atom equality and empty list equality)
 * `car`
 * `cdr`
-* `cons`
+* `cons` (and it's abbreviation `list`)
 * `cond`
 * `lambda`
-* `let` (recursive value binding)
-* `define!`
+* `define!` (recursive binding)
 * `+` and `decr`
+
+The primitives satisfy following equations:
+* *TODO*
 
 The mini-LISP interpreter implements a larger LISP additionally containing:
 * `quasiquotation`

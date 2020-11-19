@@ -52,8 +52,27 @@ a
 a
 (a b c)
 
+-- list
+()
+(a)
+(a b)
+
 -- define!
 test-value
+(lambda (f x) (f f x))
+()
+t
+t
+()
+0
+1
+2
+a
+(a b)
+(a b c d)
+(c d)
+()
+(a b)
 
 -- lambda
 a

@@ -52,8 +52,27 @@
 ((cond ('() '+) ('t 'car)) '(a b c))
 ((cond ('() '+) ('t 'quote)) (a b c))
 
+-- list
+(list)
+(list 'a)
+(list 'a 'b)
+
 -- define!
 test-var
+U-comb
+(null 'a)
+(null '())
+(and (null '()) (eq 'a 'a))
+(and (atom 'a) (eq 'a 'b))
+(len '())
+(len '(a))
+(len '(a b))
+(unlist 'a 'b '())
+(unlist 'a 'cons '(a b))
+(append '(a b) '(c d))
+(append '() '(c d))
+(append '() '())
+(append '(a b) '())
 
 -- lambda
 ((lambda () 'a))

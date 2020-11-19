@@ -1,26 +1,18 @@
 #include<map>
 
 typedef map<string,AST*> Env;
-typedef AST* evalProc(List*, Env);
+typedef AST* evalProc(List*, Env&);
 
 /* perhaps we can make the evaluation
 cleaner by adding a procedure type to AST? */
 
 // procedure that evaluates an expression using the environment.
 // may change the environment.
-AST* eval(AST* expr, Env env);
+AST* eval(AST* expr, Env& env);
 
 #include "EvalPrimitives.cpp"
 
-List* evalList(List* expr, Env env) {
-  if (expr->empty) return nl;
-  else {
-    AST* headE = eval(expr->head, env);
-    return cons(headE, evalList(expr->tail, env));
-  }
-}
-
-AST* eval(AST* expr, Env env) {
+AST* eval(AST* expr, Env& env) {
   if (debug) cout << "eval: " << expr-> lisp_string() << endl;
 
   if (expr->is_atom()) {
@@ -47,8 +39,9 @@ AST* eval(AST* expr, Env env) {
           return predefs[atom->str](xs->tail,env); // evaluation of args based on primitives
         }
         else if (env.count(atom->str) >= 1) {
-          List* eagerArgs = evalList(xs->tail, env); // eager evaluation of args
-          return eval(cons(env[atom->str],eagerArgs),env);
+          //List* eagerArgs = evalList(xs->tail, env); // eager evaluation of args
+          //cout << "eval "<< atom->str << " with args " << xs->tail->lisp_string() << endl;
+          return eval(cons(env[atom->str],xs->tail),env);
         }
         else {
           cout << "Cannot eval undefined atom in " << xs->lisp_string() << endl;
@@ -77,10 +70,20 @@ AST* eval(AST* expr, Env env) {
   return NULL;
 }
 
+#define RUN(prog,e) eval(parse_full((prog)),(e))
+
 /* standard library definitions */
-void add_standard_library(Env env) {
-  eval(parse_full("(define! test-var 'test-value)"),env);
-  cout << "Env of size " << env.size() << endl;
+void add_standard_library(Env& env) {
+  /* TODO: define should be used as search and replace, but now, it's being stronger
+    and it's evaluated first! What if we don't use the quotation?
+    We could use non-quoted definitions for metaprogramming!*/
+  RUN("(define! test-var 'test-value)", env);
+  RUN("(define! U-comb '(lambda (f x) (f f x)))", env);
+  RUN("(define! null '(lambda (x) (eq x '())) )", env);
+  RUN("(define! and '(lambda (a b) (cond (a (cond (b 't) ('t '()))) ('t '()))) )", env);
+  RUN("(define! len '(lambda (xs) (cond ((null xs) '0)  ('t (+ '1 (len (cdr xs)))))))", env);
+  RUN("(define! unlist '(lambda (z f xs) (cond ((null xs) z) ('t (f (car xs) (cdr xs))))))", env);
+  RUN("(define! append '(lambda (xs ys) (unlist ys (lambda (x rs) (cons x (append rs ys))) xs)))",env);
 }
 
 AST* Eval(AST* expr) {
@@ -88,9 +91,6 @@ AST* Eval(AST* expr) {
   add_standard_library(e);
   return eval(expr, e);
 }
-
-
-
 
 /*
 lambdas online:

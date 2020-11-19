@@ -8,7 +8,7 @@ map<string,evalProc*> predefs;
 
 /* NOTE: in the implementation of substitute, we need to take care of
 quote and stop substitution. */
-AST* prim_quote(List* expr, Env env) {
+AST* prim_quote(List* expr, Env& env) {
   if (!expr->head) {
     cout << "Error: expecting 1 argument to quote but found " << expr->lisp_string() << endl;
     return NULL;
@@ -16,7 +16,7 @@ AST* prim_quote(List* expr, Env env) {
   else return expr->head;
 }
 
-AST* prim_atom(List* expr, Env env) {
+AST* prim_atom(List* expr, Env& env) {
   if (!expr->head) {
     cout << "Error: expecting 1 argument to atom but found " << expr->lisp_string() << endl;
     return NULL;
@@ -24,7 +24,7 @@ AST* prim_atom(List* expr, Env env) {
   return eval(expr->head,env)->is_atom() ? lisp_true : lisp_false;
 }
 
-AST* prim_eq(List* expr, Env env) {
+AST* prim_eq(List* expr, Env& env) {
   if (!expr->head || !expr->tail->head) {
     cout << "Error: expecting 2 arguments to eq but found " << expr->lisp_string() << endl;
     return NULL;
@@ -41,7 +41,7 @@ AST* prim_eq(List* expr, Env env) {
   return lisp_false;
 }
 
-AST* prim_cons(List* expr, Env env) {
+AST* prim_cons(List* expr, Env& env) {
   if (!expr->head || !expr->tail->head) {
     cout << "Error: expecting 2 arguments to cons but found " << expr->lisp_string() << endl;
     return NULL;
@@ -70,7 +70,7 @@ bool tryempty(AST* expr) {
   return !expr || !dynamic_cast<List*>(expr) || dynamic_cast<List*>(expr)->empty;
 }
 
-AST* prim_cond(List* expr, Env env) {
+AST* prim_cond(List* expr, Env& env) {
   if (!expr->head || tryempty(tryhead(expr)) || tryempty(trytail(tryhead(expr))) ) {
     cout << "Error: expecting (condition expr) ... to cond but found " << expr->lisp_string() << endl;
     return NULL;
@@ -92,7 +92,7 @@ AST* prim_cond(List* expr, Env env) {
   }
 }
 
-AST* prim_cdr(List* expr, Env env) {
+AST* prim_cdr(List* expr, Env& env) {
   if (!expr->head) {
     cout << "Error: expecting 1 argument to cdr but found " << expr->lisp_string() << endl;
     return NULL;
@@ -112,17 +112,27 @@ AST* prim_cdr(List* expr, Env env) {
   }
 }
 
+List* evalList(List* expr, Env& env) {
+  if (expr->empty) return nl;
+  else {
+    AST* headE = eval(expr->head, env);
+    return cons(headE, evalList(expr->tail, env));
+  }
+}
+AST* prim_list(List* expr, Env& env) { return evalList(expr,env); }
+
 /* NOTE: in the implementation of
 substitute, we need to ignore the newly defined variable.*/
-AST* prim_define(List* expr, Env env) {
+AST* prim_define(List* expr, Env& env) {
   if (!expr->head || !expr->tail->head) {
     cout << "Error: expecting 2 arguments to define! but found " << expr->lisp_string() << endl;
     return NULL;
   }
   Atom* var = dynamic_cast<Atom*>(expr->head);
   if (var) {
+    // lambda definitions are given in quotes,
+    // we can enable recursive definitions
     AST* value = eval(expr->tail->head,env);
-    cout << "Defining " << var->str << " as " << value->lisp_string() << endl;
     env[var->str] = value;
     return value;
   }
@@ -132,7 +142,7 @@ AST* prim_define(List* expr, Env env) {
   }
 }
 
-AST* prim_car(List* expr, Env env) {
+AST* prim_car(List* expr, Env& env) {
   if (!expr->head) {
     cout << "Error: expecting 1 argument to car but found " << expr->lisp_string() << endl;
     return NULL;
@@ -218,7 +228,7 @@ AST* substitute(Atom* var, AST* value, AST* body) {
 
 /* NOTE: in the implementation of substitute, we need to take care of
 lambdas and stop substitution of the variables in the argument-list. */
-AST* prim_lambda_apply(AST* args_ast, AST* body, List* is, Env env) {
+AST* prim_lambda_apply(AST* args_ast, AST* body, List* is, Env& env) {
   List* args = dynamic_cast<List*>(args_ast);
   if (args) {
     if (args->empty) {
@@ -250,7 +260,7 @@ AST* prim_lambda_apply(AST* args_ast, AST* body, List* is, Env env) {
   }
 }
 
-AST* prim_decr(List* expr, Env env) {
+AST* prim_decr(List* expr, Env& env) {
   if (!expr->head) {
     cout << "Error: expecting 1 argument to decr but found " << expr->lisp_string() << endl;
     return NULL;
@@ -270,7 +280,7 @@ AST* prim_decr(List* expr, Env env) {
   return at(to_string(n-1));
 }
 
-AST* prim_plus(List* expr, Env env) {
+AST* prim_plus(List* expr, Env& env) {
   List* xs = expr;
   int acc = 0;
   while(!xs->empty) {
@@ -292,7 +302,7 @@ AST* prim_plus(List* expr, Env env) {
   return at(to_string(acc));
 }
 
-AST* prim_standalone_lambda(List* expr, Env env) {
+AST* prim_standalone_lambda(List* expr, Env& env) {
   cout << "Cannot evaluate standalone primitive lambda with " << expr->lisp_string() << endl;
   return NULL;
 }
@@ -310,5 +320,6 @@ void setup_interpreter() {
     predefs.insert({"cond",&prim_cond});
     predefs.insert({"lambda",&prim_standalone_lambda});
     predefs.insert({"define!",&prim_define});
+    predefs.insert({"list",&prim_list});
   }
 }
