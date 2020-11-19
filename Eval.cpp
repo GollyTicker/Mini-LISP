@@ -43,6 +43,7 @@ AST* eval(AST* expr, Env env) {
       Atom* atom = dynamic_cast<Atom*>(hd);
       if (atom) {
         if (predefs.count(atom->str) >= 1) {
+          // cout << "Applying primitive " << atom->str << " on env of size " << env.size() << endl;
           return predefs[atom->str](xs->tail,env); // evaluation of args based on primitives
         }
         else if (env.count(atom->str) >= 1) {
@@ -76,10 +77,19 @@ AST* eval(AST* expr, Env env) {
   return NULL;
 }
 
+/* standard library definitions */
+void add_standard_library(Env env) {
+  eval(parse_full("(define! test-var 'test-value)"),env);
+  cout << "Env of size " << env.size() << endl;
+}
+
 AST* Eval(AST* expr) {
   Env e;
+  add_standard_library(e);
   return eval(expr, e);
 }
+
+
 
 
 /*

@@ -11,9 +11,10 @@ The C++ implements a mini-LISP interpreter consisting of:
 * `cdr`
 * `cons`
 * `cond`
-* `+` and `decr`
 * `lambda`
-* (`set!`)
+* `let` (recursive value binding)
+* `define!`
+* `+` and `decr`
 
 The mini-LISP interpreter implements a larger LISP additionally containing:
 * `quasiquotation`

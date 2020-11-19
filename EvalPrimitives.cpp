@@ -112,6 +112,26 @@ AST* prim_cdr(List* expr, Env env) {
   }
 }
 
+/* NOTE: in the implementation of
+substitute, we need to ignore the newly defined variable.*/
+AST* prim_define(List* expr, Env env) {
+  if (!expr->head || !expr->tail->head) {
+    cout << "Error: expecting 2 arguments to define! but found " << expr->lisp_string() << endl;
+    return NULL;
+  }
+  Atom* var = dynamic_cast<Atom*>(expr->head);
+  if (var) {
+    AST* value = eval(expr->tail->head,env);
+    cout << "Defining " << var->str << " as " << value->lisp_string() << endl;
+    env[var->str] = value;
+    return value;
+  }
+  else {
+    cout << "Cannot apply primitive define! to non-atom " << expr->head->lisp_string() << endl;
+    return NULL;
+  }
+}
+
 AST* prim_car(List* expr, Env env) {
   if (!expr->head) {
     cout << "Error: expecting 1 argument to car but found " << expr->lisp_string() << endl;
@@ -161,6 +181,13 @@ set<string> lambda_arguments(AST* e) {
   }
   else return set<string>();
 }
+set<string> define_vars(AST* e) {
+  List* df = dynamic_cast<List*>(e);
+  Atom* define_name = dynamic_cast<Atom*>(tryhead(df));
+  Atom* var = dynamic_cast<Atom*>(tryhead(trytail(df)));
+  if (df && define_name && define_name->equals(at("define!")) && var) return set<string>{var->str};
+  else return set<string>();
+}
 AST* substitute(Atom* var, AST* value, AST* body) {
   //cout << "substitute " << var->lisp_string() << " for " << value->lisp_string() << " in " << body->lisp_string() << endl;
   if (body->is_atom()) {
@@ -176,15 +203,17 @@ AST* substitute(Atom* var, AST* value, AST* body) {
     else {
       AST* new_head;
       if (is_quote(xs->head) || /* don't continue substitution in quote */
-      lambda_arguments(xs->head).count(var->str) >= 1
+      lambda_arguments(xs->head).count(var->str) >= 1 ||
       /* abort substitution, since it's shadowed by inner lambda. */
+      define_vars(xs->head).count(var->str) >= 1
+      /* abort substitution, if define with same variable */
       ) { new_head = xs->head; }
       else { new_head = substitute(var,value,xs->head); }
 
       List* new_tail = dynamic_cast<List*>(substitute(var,value,xs->tail));
       return cons(new_head,new_tail);
+    }
   }
-}
 }
 
 /* NOTE: in the implementation of substitute, we need to take care of
@@ -200,7 +229,6 @@ AST* prim_lambda_apply(AST* args_ast, AST* body, List* is, Env env) {
       if (var) {
         if (!is->empty) {
           // substitute input for argument
-          // AST* inp_evaled = eval(is->head, env); // don't evaluate it...
           AST* new_body = substitute(var,is->head, body);
           // continue recursively
           return prim_lambda_apply(args->tail,new_body,is->tail, env);
@@ -281,5 +309,6 @@ void setup_interpreter() {
     predefs.insert({"cons",&prim_cons});
     predefs.insert({"cond",&prim_cond});
     predefs.insert({"lambda",&prim_standalone_lambda});
+    predefs.insert({"define!",&prim_define});
   }
 }

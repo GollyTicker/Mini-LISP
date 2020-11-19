@@ -6,7 +6,7 @@ sdf
 -- atoms and lists
 a
 sdfsr
-('d 'a 1)
+((quote d) (quote a) 1)
 213
 (23 dfs 34)
 9
@@ -51,6 +51,9 @@ b
 a
 a
 (a b c)
+
+-- define!
+test-value
 
 -- lambda
 a

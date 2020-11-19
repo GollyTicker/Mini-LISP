@@ -52,6 +52,9 @@
 ((cond ('() '+) ('t 'car)) '(a b c))
 ((cond ('() '+) ('t 'quote)) (a b c))
 
+-- define!
+test-var
+
 -- lambda
 ((lambda () 'a))
 ((lambda () (cons '1 '(c d))))
