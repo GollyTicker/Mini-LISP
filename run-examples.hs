@@ -13,14 +13,20 @@ processLinewise = do
   inputs <- readFile "examples.in"
   expected <- readFile "examples.out"
 
-  zipWithM_ ( \inp ex ->
-    when (length inp > 0 && (take 2 inp /= "--")) $
-      do
-        Stdout out' <- command [Stdin inp] "./MiniLISP" []
-        let out = init out' -- ignore \n at end
-        if (out /= ex)
-          then putStrLn ("XX | " ++ inp ++ " => " ++ ex ++ ", but got: " ++ out )
-          else putStrLn (":) | " ++ inp ++ " => " ++ ex)
-   )
-   (lines inputs)
-   (lines expected)
+  res <-
+    zipWithM ( \inp ex ->
+      if (length inp > 0 && (take 2 inp /= "--")) then
+        do
+          Stdout out' <- command [Stdin inp] "./MiniLISP" []
+          let out = init out' -- ignore \n at end
+          if (out == ex)
+            then putStrLn (":) | " ++ inp ++ " => " ++ ex)
+            else putStrLn ("XX | " ++ inp ++ " => " ++ ex ++ ", but got: " ++ out )
+          return (out == ex)
+      else return True
+     )
+     (lines inputs)
+     (lines expected)
+  if (and res)
+    then putStrLn "+++ All tests passed! +++"
+    else putStrLn "### Some tests failed! ###"

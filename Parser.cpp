@@ -1,6 +1,8 @@
 /* RECURSIVE DESCENT PARSING */
 /* monad abstractions for these parsers would be great :) */
 
+#include<set>
+
 // parses single character c and returns new index or fails with -1
 int character(char c, string s, int i) {
   if (debug) cout << "character("<<c<<","<<i<<")"<< endl;
@@ -74,18 +76,18 @@ pair<AST*,int> lisp_expr(string s, int i1) {
   }
 }
 
+set<char> atom_breaks{' ', ')', '(', '\''};
+
 pair<Atom*,int> atom_expr(string s, int i) {
   if (debug) cout << "atom_expr("<<i<<")" << endl;
   int i0 = i;
   /*read atom name until ( or end or whitespace.*/
   while (i < s.length()) {
-    if (s[i] == '(') {
-      if (i==i0) {
-        cout << "Expecting ATOM, but found '(' at " << i << endl;
-        return NO_RESULT(Atom);
-      }
+    if (i==i0 && atom_breaks.count(s[i])>=1) {
+      cout << "Expecting ATOM, but found " << s[i] << " at " << i << endl;
+      return NO_RESULT(Atom);
     }
-    else if (s[i] == ' ' || s[i] == ')') {
+    else if (s[i] == ' ' || s[i] == ')' || s[i] == '(' || s[i] == '\'') {
       break;
     }
     else i++;

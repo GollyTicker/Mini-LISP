@@ -2,3 +2,15 @@
 
 
 * bootstraping thecompiler in the sense, that we can use rewritings to update the language implementation would be a cool idea. it would make it independent of C++ !
+
+* as a note to the parallel flowboard project:
+  lisp offers quasiquoting for generating code.
+  however, we often not only want to produce code with generated components,
+  but also "pattern match" to code with specific structure. it's simple
+  to pattern match to code with variable sections to describe code transformations.
+  however, expressing the same via functional access patterns and matching
+  via == is cumbersome and not the best we can achieve.
+  primary inspiration is scalas pattern matching and PROLOGs matching.
+
+* since we're writing a lisp interpreter inside lisp, couldn't we also
+  duplicate the tests accordingly instead of writing all of them again?

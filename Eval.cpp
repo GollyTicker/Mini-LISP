@@ -1,4 +1,5 @@
 #include<map>
+#include <algorithm>
 
 typedef map<string,AST*> Env;
 typedef AST* evalProc(List*, Env&);
@@ -78,13 +79,53 @@ void add_standard_library(Env& env) {
     and it's evaluated first! What if we don't use the quotation?
     We could use non-quoted definitions for metaprogramming!*/
   RUN("(define! test-var 'test-value)", env);
+  RUN("(define! ifelse '(lambda (b x y) (cond (b x) ('t y))))",env);
   RUN("(define! U-comb '(lambda (f x) (f f x)))", env);
   RUN("(define! null '(lambda (x) (eq x '())) )", env);
-  RUN("(define! and '(lambda (a b) (cond (a (cond (b 't) ('t '()))) ('t '()))) )", env);
-  RUN("(define! len '(lambda (xs) (cond ((null xs) '0)  ('t (+ '1 (len (cdr xs)))))))", env);
-  RUN("(define! unlist '(lambda (z f xs) (cond ((null xs) z) ('t (f (car xs) (cdr xs))))))", env);
+  RUN("(define! not '(lambda (x) (ifelse x '() 't)) )", env);
+  RUN("(define! and '(lambda (a b) (ifelse a (ifelse b 't '()) '())) )", env);
+  RUN("(define! or '(lambda (a b) (not (and (not a) (not b)))))",env);
+  RUN("(define! len '(lambda (xs) (ifelse (null xs) '0  (+ '1 (len (cdr xs))))))", env);
+  RUN("(define! unlist '(lambda (z f xs) (ifelse (null xs) z (f (car xs) (cdr xs)))))", env);
+  RUN("(define! foldr '(lambda (f z xs) (unlist z (lambda (x rs) (f x (foldr f z rs))) xs)))", env);
   RUN("(define! append '(lambda (xs ys) (unlist ys (lambda (x rs) (cons x (append rs ys))) xs)))",env);
+  RUN("(define! zip '(lambda (xs ys) (ifelse (or (null xs) (null ys)) '()  (cons (list (car xs) (car ys)) (zip (cdr xs) (cdr ys))))))",env);
+  RUN("(define! caar '(lambda (x) (car (car x))))",env);
+  RUN("(define! cadr '(lambda (x) (car (cdr x))))",env);
+  RUN("(define! cadar '(lambda (x) (car (cdr (car x)))))",env);
+  RUN("(define! assoc "
+        "'(lambda (k ps nl) "
+          "(cond "
+            "((null ps) nl) "
+            "((eq k (caar ps)) (cadar ps)) "
+            "('t (assoc k (cdr ps) nl))"
+          ")"
+        ")"
+      ")",env);
+
+  // multiline string: https://stackoverflow.com/questions/1135841/c-multiline-string-literal
+  string eval_def =
+    "(define! eval "
+      "'(lambda (e env) "
+        "(ifelse "
+          "(atom e) (assoc e env (list 'error 'undefined-atom e)) "
+          "(unlist '(error empty-list-eval) "
+          " (lambda (hd tl)"
+            "(cond"
+              "((eq hd 'quote) (car tl))"
+              "((eq hd 'atom) (atom (eval (car tl) env)))"
+              "((eq hd 'eq) (eq (eval (car tl) env) (eval (cadr tl) env)))"
+              "('t (list 'error 'not-implemented hd))"
+            ")"
+          " )"
+          " e)"
+        ")"
+      ")"
+    ")";
+
+  RUN(eval_def,env);
 }
+
 
 AST* Eval(AST* expr) {
   Env e;

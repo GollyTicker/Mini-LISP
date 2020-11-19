@@ -1,3 +1,10 @@
+-- parsing
+'(a b c)
+'(a )
+'(a (b c))
+'(a(b c))
+'((b c)a)
+
 -- quote
 (quote (a b c))
 'sdf
@@ -60,8 +67,12 @@
 -- define!
 test-var
 U-comb
+
+-- standard library
 (null 'a)
 (null '())
+(ifelse 't 'a 'b)
+(ifelse '() 'a 'b)
 (and (null '()) (eq 'a 'a))
 (and (atom 'a) (eq 'a 'b))
 (len '())
@@ -73,6 +84,26 @@ U-comb
 (append '() '(c d))
 (append '() '())
 (append '(a b) '())
+(foldr 'cons '() '())
+(foldr 'cons '() '(a))
+(foldr 'cons '() '(a b))
+(zip '() '())
+(zip '(a) '())
+(zip '(a) '(1 2))
+(zip '(a b) '(1 2))
+(assoc 'a '((a 1) (b 2)) '#)
+(assoc 'b '((a 1) (b 2)) '#)
+(assoc 'c '((a 1) (b 2)) '#)
+
+-- lisp self-interpreter
+(eval 'a '())
+(eval 'a '((a 1)))
+(eval '() '())
+(eval ''a '())
+(eval '(atom 'a) '())
+(eval '(atom '()) '())
+(eval '(eq 'a 'a) '())
+(eval '(eq 'a 'b) '())
 
 -- lambda
 ((lambda () 'a))

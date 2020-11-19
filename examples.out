@@ -1,3 +1,10 @@
+-- parsing
+(a b c)
+(a)
+(a (b c))
+(a (b c))
+((b c) a)
+
 -- quote
 (a b c)
 sdf
@@ -60,8 +67,12 @@ a
 -- define!
 test-value
 (lambda (f x) (f f x))
+
+-- standard library
 ()
 t
+a
+b
 t
 ()
 0
@@ -73,6 +84,26 @@ a
 (c d)
 ()
 (a b)
+()
+(a)
+(a b)
+()
+()
+((a 1))
+((a 1) (b 2))
+1
+2
+#
+
+-- eval
+(error undefined-atom a)
+1
+(error empty-list-eval)
+a
+t
+()
+t
+()
 
 -- lambda
 a
