@@ -8,6 +8,7 @@
 (define! len '(lambda (xs) (ifelse (null xs) '0  (+ '1 (len (cdr xs))))))
 (define! unlist '(lambda (z f xs) (ifelse (null xs) z (f (car xs) (cdr xs)))))
 (define! foldr '(lambda (f z xs) (unlist z (lambda (x rs) (f x (foldr f z rs))) xs)))
+(define! foldl '(lambda (f z xs) (unlist z (lambda (x rs) (foldl f (f z x) rs)) xs)))
 (define! append '(lambda (xs ys) (unlist ys (lambda (x rs) (cons x (append rs ys))) xs)))
 (define! zip '(lambda (xs ys) (ifelse (or (null xs) (null ys)) '()  (cons (list (car xs) (car ys)) (zip (cdr xs) (cdr ys))))))
 (define! caar '(lambda (x) (car (car x))))
@@ -22,6 +23,16 @@
     ) \
   ) \
 )
+(define! map '(lambda (f xs) (foldr (lambda (x r) (cons (f x) r)) '() xs)))
+(define! is_quote '(lambda (e) (and (not (atom e)) (eq (car e) 'quote)) ))
+(define! substitute '(lambda (var val body) \
+  (ifelse \
+    (atom body) (ifelse (eq body var) val body) \
+    (map \
+      (lambda (x) '???) \
+    body) \
+  ) \
+))
 (define! eval \
   '(lambda (e env) \
     (ifelse \
@@ -51,7 +62,13 @@
                       (eval (cons (assoc hd env '()) tl) env) \
                     )) \
               ) \
-            (list 'error 'list-eval-not-implemented) \
+            (ifelse \
+              (and (not (null hd)) (eq (car hd) 'lambda)) \
+                (foldl \
+                  (lambda (acc x) '(substitute to be implemented)) \
+                  (caddr hd) \
+                  (cadr hd)) \
+              (eval (cons (eval hd env) tl) env)) \
           ) \
         ) \
        e) \

@@ -202,9 +202,6 @@ AST* substitute(Atom* var, AST* value, AST* body) {
   //cout << "substitute " << var->lisp_string() << " for " << value->lisp_string() << " in " << body->lisp_string() << endl;
   if (body->is_atom()) {
     Atom* atom = dynamic_cast<Atom*>(body);
-    if (atom->equals(var) && false) {
-      cout << " replaced " << var->lisp_string() << " with "<< value->lisp_string() << endl;
-    }
     return atom->equals(var) ? value : atom;
   }
   else {

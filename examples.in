@@ -106,6 +106,7 @@ U-comb
 (foldr 'cons '() '())
 (foldr 'cons '() '(a))
 (foldr 'cons '() '(a b))
+(foldl 'cons '1 '((a) (b c)))
 (zip '() '())
 (zip '(a) '())
 (zip '(a) '(1 2))
@@ -113,6 +114,17 @@ U-comb
 (assoc 'a '((a 1) (b 2)) '#)
 (assoc 'b '((a 1) (b 2)) '#)
 (assoc 'c '((a 1) (b 2)) '#)
+(map 'decr '(1 2 3))
+(is_quote ''abc)
+(is_quote 'abc)
+(is_quote '(a b c))
+(is_quote ''(a b c))
+(substitute 'a 'b 'a)
+(substitute 'a 'b 'c)
+(substitute 'a '(0 1) '(0 a a))
+(substitute 'a '(0 1) ''(0 a a))
+(substitute 'a '(0 1) '(lambda (0 a b) (list 0 a b)))
+(substitute 'list 'd '(lambda (0 a b) (list 0 a b)))
 
 -- label
 
