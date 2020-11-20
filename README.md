@@ -13,7 +13,8 @@ The C++ implements a mini-LISP interpreter consisting of:
 * `cond`
 * `lambda`
 * `define!` (recursive binding)
-* `+` and `decr`
+* `environment` (returns all bindings to re-direct standard library)
+* `+` and `decr` (convenience for example numerical functions)
 
 The primitives satisfy following equations:
 * *TODO*

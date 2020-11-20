@@ -260,6 +260,17 @@ AST* prim_lambda_apply(AST* args_ast, AST* body, List* is, Env& env) {
   }
 }
 
+/* returns an association list representing the current environment bindings. */
+AST* prim_environment(List* expr, Env& env) {
+  /* (define! a '1) and (define! b '(a b c))   become   ( (a 1)  (b (a b c)) )  */
+  List* assocs = nl;
+  for (auto const& x : env) {
+    List* pair = cons(at(x.first),cons(x.second,nl));
+    assocs = cons(pair,assocs);
+  }
+  return assocs;
+}
+
 AST* prim_decr(List* expr, Env& env) {
   if (!expr->head) {
     cout << "Error: expecting 1 argument to decr but found " << expr->lisp_string() << endl;
@@ -321,5 +332,6 @@ void setup_interpreter() {
     predefs.insert({"lambda",&prim_standalone_lambda});
     predefs.insert({"define!",&prim_define});
     predefs.insert({"list",&prim_list});
+    predefs.insert({"environment",&prim_environment});
   }
 }

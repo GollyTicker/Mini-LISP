@@ -1,5 +1,9 @@
 #include<map>
 #include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <streambuf>
+#include <sstream>
 
 typedef map<string,AST*> Env;
 typedef AST* evalProc(List*, Env&);
@@ -57,6 +61,12 @@ AST* eval(AST* expr, Env& env) {
         return prim_lambda_apply(args,body,xs->tail,env);
       }
       else { /* evaluate fn and repeat */
+        /*
+        Evaluating the head first enables
+        computing head directly:
+        ((cond ('() '+) ('t 'car)) '(a b c))
+        This isn't possible in online lisp implementations.
+        */
         AST* evaledfn = eval(fn, env);
         // defer evaluation of arguments to next eval
         return eval(cons(evaledfn,xs->tail),env);
@@ -71,59 +81,39 @@ AST* eval(AST* expr, Env& env) {
   return NULL;
 }
 
-#define RUN(prog,e) eval(parse_full((prog)),(e))
+string remove_backslash_newlines(string& s) {
+  string r = "";
+  for (int i=0;i<s.length()-1;i++){
+    if (s[i]=='\\' && s[i+1]=='\n') i+=1; // skip newline
+    else r += string{s[i]};
+  }
+  // ignore newline at end
+  return r;
+}
 
 /* standard library definitions */
 void add_standard_library(Env& env) {
   /* TODO: define should be used as search and replace, but now, it's being stronger
     and it's evaluated first! What if we don't use the quotation?
     We could use non-quoted definitions for metaprogramming!*/
-  RUN("(define! test-var 'test-value)", env);
-  RUN("(define! ifelse '(lambda (b x y) (cond (b x) ('t y))))",env);
-  RUN("(define! U-comb '(lambda (f x) (f f x)))", env);
-  RUN("(define! null '(lambda (x) (eq x '())) )", env);
-  RUN("(define! not '(lambda (x) (ifelse x '() 't)) )", env);
-  RUN("(define! and '(lambda (a b) (ifelse a (ifelse b 't '()) '())) )", env);
-  RUN("(define! or '(lambda (a b) (not (and (not a) (not b)))))",env);
-  RUN("(define! len '(lambda (xs) (ifelse (null xs) '0  (+ '1 (len (cdr xs))))))", env);
-  RUN("(define! unlist '(lambda (z f xs) (ifelse (null xs) z (f (car xs) (cdr xs)))))", env);
-  RUN("(define! foldr '(lambda (f z xs) (unlist z (lambda (x rs) (f x (foldr f z rs))) xs)))", env);
-  RUN("(define! append '(lambda (xs ys) (unlist ys (lambda (x rs) (cons x (append rs ys))) xs)))",env);
-  RUN("(define! zip '(lambda (xs ys) (ifelse (or (null xs) (null ys)) '()  (cons (list (car xs) (car ys)) (zip (cdr xs) (cdr ys))))))",env);
-  RUN("(define! caar '(lambda (x) (car (car x))))",env);
-  RUN("(define! cadr '(lambda (x) (car (cdr x))))",env);
-  RUN("(define! cadar '(lambda (x) (car (cdr (car x)))))",env);
-  RUN("(define! assoc "
-        "'(lambda (k ps nl) "
-          "(cond "
-            "((null ps) nl) "
-            "((eq k (caar ps)) (cadar ps)) "
-            "('t (assoc k (cdr ps) nl))"
-          ")"
-        ")"
-      ")",env);
+  string std_lib = "standard-library.lisp";
+  ifstream file(std_lib);
+  string std_defs;
+  if (file.is_open()) {
+    std_defs = string((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+    std_defs = remove_backslash_newlines(std_defs);
+    file.close();
+  }
+  else {
+    cout << "Error: Couldn't open std library: " << std_lib << endl;
+  }
 
-  // multiline string: https://stackoverflow.com/questions/1135841/c-multiline-string-literal
-  string eval_def =
-    "(define! eval "
-      "'(lambda (e env) "
-        "(ifelse "
-          "(atom e) (assoc e env (list 'error 'undefined-atom e)) "
-          "(unlist '(error empty-list-eval) "
-          " (lambda (hd tl)"
-            "(cond"
-              "((eq hd 'quote) (car tl))"
-              "((eq hd 'atom) (atom (eval (car tl) env)))"
-              "((eq hd 'eq) (eq (eval (car tl) env) (eval (cadr tl) env)))"
-              "('t (list 'error 'not-implemented hd))"
-            ")"
-          " )"
-          " e)"
-        ")"
-      ")"
-    ")";
-
-  RUN(eval_def,env);
+  // read std definitions into environment
+  stringstream std_lines(std_defs);
+  string expr;
+  while (getline(std_lines, expr)) {
+    eval(parse_full(expr),env);
+  }
 }
 
 

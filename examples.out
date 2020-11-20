@@ -4,6 +4,7 @@
 (a (b c))
 (a (b c))
 ((b c) a)
+((b c) a)
 
 -- quote
 (a b c)
@@ -64,6 +65,23 @@ a
 (a)
 (a b)
 
+-- lambda
+a
+(1 c d)
+(1 c d)
+(1 b c)
+(1 a c)
+(1 2 3 4)
+3
+(a a)
+(f f x)
+(f f arg1 arg2)
+3
+6
+--
+--
+--
+
 -- define!
 test-value
 (lambda (f x) (f f x))
@@ -95,6 +113,8 @@ a
 2
 #
 
+-- label
+
 -- eval
 (error undefined-atom a)
 1
@@ -104,22 +124,9 @@ t
 ()
 t
 ()
-
--- lambda
 a
-(1 c d)
-(1 c d)
-(1 b c)
-(1 a c)
-(1 2 3 4)
-3
-(a a)
-(f f x)
-(f f arg1 arg2)
-3
-6
---
---
---
+(b)
+a
+a
 
--- label
+-- lisp self-interpreter

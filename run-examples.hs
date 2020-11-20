@@ -2,6 +2,8 @@
 import System.Command
 import System.Exit
 import Control.Monad
+import Data.List
+import Data.String.Utils
 
 main = do
   ExitSuccess <- compile "MiniLISP.cpp" "MiniLISP"
@@ -9,24 +11,42 @@ main = do
 
 compile cpp out = command [] "g++" [cpp,"-o",out]
 
-processLinewise = do
-  inputs <- readFile "examples.in"
-  expected <- readFile "examples.out"
+runTests = zipWithM ( \inp ex ->
+  do
+    Stdout out' <- command [Stdin inp] "./MiniLISP" []
+    let out = init out' -- ignore \n at end
+    if (out == ex)
+      then putStrLn (":) | " ++ inp ++ " => " ++ ex)
+      else putStrLn ("XX | " ++ inp ++ " => " ++ ex ++ ", but got: " ++ out )
+    return (out == ex)
+  )
 
-  res <-
-    zipWithM ( \inp ex ->
-      if (length inp > 0 && (take 2 inp /= "--")) then
-        do
-          Stdout out' <- command [Stdin inp] "./MiniLISP" []
-          let out = init out' -- ignore \n at end
-          if (out == ex)
-            then putStrLn (":) | " ++ inp ++ " => " ++ ex)
-            else putStrLn ("XX | " ++ inp ++ " => " ++ ex ++ ", but got: " ++ out )
-          return (out == ex)
-      else return True
-     )
-     (lines inputs)
-     (lines expected)
-  if (and res)
+testCases =
+  takeWhile (/="-- lisp self-interpreter")
+  . filter (\x -> length x > 0 && (take 2 x /= "--"))
+
+splitLines = lines . replace "\\\n" "" -- use backslash for multi-line expressions
+
+processLinewise = do
+  inputs <- splitLines <$> readFile "examples.in"
+  expected <- splitLines <$> readFile "examples.out"
+
+  let inps = testCases inputs
+      expt = testCases expected
+
+  res1 <- runTests inps expt
+
+
+  let varname = "expr"
+      ruleStart = varname ++ " ->"
+      replacementRule = head . filter (isPrefixOf ruleStart) . tails . head . filter (isInfixOf ruleStart) $ inputs
+      body = drop (length ruleStart) replacementRule
+      embedInEval expr = replace varname expr body
+
+  putStrLn $ "----------------\nRepeating tests with lisp self-interpreter: " ++ replacementRule
+
+  res2 <- runTests (map embedInEval inps) expt
+
+  if (and res1 && and res2)
     then putStrLn "+++ All tests passed! +++"
     else putStrLn "### Some tests failed! ###"
