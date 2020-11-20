@@ -43,10 +43,10 @@ processLinewise = do
       body = drop (length ruleStart) replacementRule
       embedInEval expr = replace varname expr body
 
-  putStrLn $ "----------------\nRepeating tests with lisp self-interpreter: " ++ replacementRule
+  putStrLn $ "*************\nRepeating tests with lisp self-interpreter: " ++ replacementRule
 
   res2 <- runTests (map embedInEval inps) expt
 
   if (and res1 && and res2)
-    then putStrLn "+++ All tests passed! +++"
-    else putStrLn "### Some tests failed! ###"
+    then putStrLn "*+++ All tests passed! +++*"
+    else putStrLn "*XXX Some tests failed! XXX*"
