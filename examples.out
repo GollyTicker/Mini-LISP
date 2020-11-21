@@ -71,8 +71,11 @@ a
 (1 c d)
 (1 b c)
 (1 a c)
+a
 (1 2 3 4)
 3
+a
+a
 (a a)
 (f f x)
 (f f arg1 arg2)
@@ -118,10 +121,15 @@ t
 ()
 ()
 t
+(a b c)
+()
+()
+t
+()
 b
 c
-(0 (0 1) (0 1)))
-'(0 a a)
+(0 (0 1) (0 1))
+(quote (0 a a))
 (lambda (0 a b) (list 0 a b))
 (lambda (0 a b) (d 0 a b))
 

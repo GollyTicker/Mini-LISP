@@ -14,6 +14,7 @@
 (define! caar '(lambda (x) (car (car x))))
 (define! cadr '(lambda (x) (car (cdr x))))
 (define! cadar '(lambda (x) (car (cdr (car x)))))
+(define! caddr '(lambda (x) (car (cdr (cdr x)))))
 (define! assoc \
   '(lambda (k ps nl) \
     (cond \
@@ -24,13 +25,22 @@
   ) \
 )
 (define! map '(lambda (f xs) (foldr (lambda (x r) (cons (f x) r)) '() xs)))
-(define! is_quote '(lambda (e) (and (not (atom e)) (eq (car e) 'quote)) ))
+(define! is-quote '(lambda (e) (and (not (atom e)) (eq (car e) 'quote))))
+(define! lambda-args '(lambda (e) \
+  (ifelse (and (not (atom e)) (eq (car e) 'lambda)) (cadr e) '())\
+))
+(define! contains '(lambda (xs x) (cond \
+  ((null xs) '()) \
+  ((eq (car xs) x) 't) \
+  ('t (contains (cdr xs) x)) \
+)))
 (define! substitute '(lambda (var val body) \
-  (ifelse \
-    (atom body) (ifelse (eq body var) val body) \
-    (map \
-      (lambda (x) '???) \
-    body) \
+  (cond \
+    ((atom body) (ifelse (eq body var) val body)) \
+    ((is-quote body) body) \
+    ((contains (lambda-args body) var) body) \
+    ('t (map (lambda (a) (substitute var val a)) body)) \
+    ('t 'TODO-define!-non-substitution-not-implemented) \
   ) \
 ))
 (define! eval \
@@ -64,10 +74,13 @@
               ) \
             (ifelse \
               (and (not (null hd)) (eq (car hd) 'lambda)) \
-                (foldl \
-                  (lambda (acc x) '(substitute to be implemented)) \
-                  (caddr hd) \
-                  (cadr hd)) \
+                (ifelse 't 'lambda-not-implemented \
+                  (eval (foldl \
+                      (lambda (acc kv) (substitute (car kv) (cadr kv) acc)) \
+                      (caddr hd) \
+                      (zip (cadr hd) tl)) \
+                  env) \
+                ) \
               (eval (cons (eval hd env) tl) env)) \
           ) \
         ) \

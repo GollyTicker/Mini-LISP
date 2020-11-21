@@ -208,17 +208,15 @@ AST* substitute(Atom* var, AST* value, AST* body) {
     List* xs = dynamic_cast<List*>(body);
     if (xs->empty) return nl;
     else {
-      AST* new_head;
-      if (is_quote(xs->head) || /* don't continue substitution in quote */
-      lambda_arguments(xs->head).count(var->str) >= 1 ||
-      /* abort substitution, since it's shadowed by inner lambda. */
-      define_vars(xs->head).count(var->str) >= 1
-      /* abort substitution, if define with same variable */
-      ) { new_head = xs->head; }
-      else { new_head = substitute(var,value,xs->head); }
-
-      List* new_tail = dynamic_cast<List*>(substitute(var,value,xs->tail));
-      return cons(new_head,new_tail);
+      if (is_quote(xs) || /* don't continue substitution in quote */
+        lambda_arguments(xs).count(var->str) >= 1 || /* shadowed by inner lambda. */
+        define_vars(xs).count(var->str) >= 1) /* define with same variable */
+      { return xs; }
+      else {
+        AST* new_head = substitute(var,value,xs->head);
+        List* new_tail = dynamic_cast<List*>(substitute(var,value,xs->tail));
+        return cons(new_head,new_tail);
+      }
     }
   }
 }
