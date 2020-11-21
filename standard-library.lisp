@@ -74,7 +74,9 @@
               ) \
             (ifelse \
               (and (not (null hd)) (eq (car hd) 'lambda)) \
-                (ifelse 't 'lambda-not-implemented \
+                (ifelse 't (car '(lambda-not-implemented \
+            DONT_RUN_THIS_!!_it_is_unoptimised_and_takes_lots_of_memory.However_its_correct. \
+                  )) \
                   (eval (foldl \
                       (lambda (acc kv) (substitute (car kv) (cadr kv) acc)) \
                       (caddr hd) \
