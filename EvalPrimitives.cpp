@@ -1,14 +1,15 @@
 #include<set>
 #include<exception>
+#include<memory>
 
-AST* lisp_true = (AST*) at("t");
-AST* lisp_false = (AST*) nl;
+pAST lisp_true = (pAST) at("t");
+pAST lisp_false = (pAST) nl;
 
 map<string,evalProc*> predefs;
 
 /* NOTE: in the implementation of substitute, we need to take care of
 quote and stop substitution. */
-AST* prim_quote(List* expr, Env& env) {
+pAST prim_quote(pList expr, Env& env) {
   if (!expr->head) {
     cout << "Error: expecting 1 argument to quote but found " << expr->lisp_string() << endl;
     return NULL;
@@ -16,7 +17,12 @@ AST* prim_quote(List* expr, Env& env) {
   else return expr->head;
 }
 
-AST* prim_atom(List* expr, Env& env) {
+template <class A, class B>
+shared_ptr<B> cast(shared_ptr<A> a) {
+  return a ? dynamic_cast<B>(*a) : NULL;
+}
+
+pAST prim_atom(pList expr, Env& env) {
   if (!expr->head) {
     cout << "Error: expecting 1 argument to atom but found " << expr->lisp_string() << endl;
     return NULL;
@@ -24,31 +30,31 @@ AST* prim_atom(List* expr, Env& env) {
   return eval(expr->head,env)->is_atom() ? lisp_true : lisp_false;
 }
 
-AST* prim_eq(List* expr, Env& env) {
+pAST prim_eq(pList expr, Env& env) {
   if (!expr->head || !expr->tail->head) {
     cout << "Error: expecting 2 arguments to eq but found " << expr->lisp_string() << endl;
     return NULL;
   }
-  AST* left = eval(expr->head,env);
-  AST* right = eval(expr->tail->head,env);
+  pAST left = eval(expr->head,env);
+  pAST right = eval(expr->tail->head,env);
   /* equal if both are the same atom or the empty list. */
-  Atom* la = dynamic_cast<Atom*>(left);
-  Atom* ra = dynamic_cast<Atom*>(right);
+  pAtom la = dynamic_pointer_cast<Atom>(left);
+  pAtom ra = dynamic_pointer_cast<Atom>(right);
   if (la && ra) return la->equals(ra)? lisp_true : lisp_false;
-  List* ll = dynamic_cast<List*>(left);
-  List* rl = dynamic_cast<List*>(right);
+  pList ll = dynamic_pointer_cast<List>(left);
+  pList rl = dynamic_pointer_cast<List>(right);
   if (ll && rl) return ll->empty && rl->empty ? lisp_true : lisp_false;
   return lisp_false;
 }
 
-AST* prim_cons(List* expr, Env& env) {
+pAST prim_cons(pList expr, Env& env) {
   if (!expr->head || !expr->tail->head) {
     cout << "Error: expecting 2 arguments to cons but found " << expr->lisp_string() << endl;
     return NULL;
   }
-  AST* hd = eval(expr->head,env);
-  AST* tl = eval(expr->tail->head,env);
-  List* tail = dynamic_cast<List*>(tl);
+  pAST hd = eval(expr->head,env);
+  pAST tl = eval(expr->tail->head,env);
+  pList tail = dynamic_pointer_cast<List>(tl);
   if (!tail) {
     cout << "Cannot apply primitive cons on non-list tail " << tl->lisp_string() << endl;
     return NULL;
@@ -56,28 +62,28 @@ AST* prim_cons(List* expr, Env& env) {
   return cons(hd,tail);
 }
 
-AST* tryhead(AST* expr) {
-  return ( expr && dynamic_cast<List*>(expr) ) ?
-    dynamic_cast<List*>(expr)->head
+pAST tryhead(pAST expr) {
+  return ( expr && dynamic_pointer_cast<List>(expr) ) ?
+    dynamic_pointer_cast<List>(expr)->head
     : NULL;
 }
-List* trytail(AST* expr) {
-  return ( expr && dynamic_cast<List*>(expr) ) ?
-    dynamic_cast<List*>(dynamic_cast<List*>(expr)->tail)
+pList trytail(pAST expr) {
+  return ( expr && dynamic_pointer_cast<List>(expr) ) ?
+    dynamic_pointer_cast<List>(dynamic_pointer_cast<List>(expr)->tail)
     : NULL;
 }
-bool tryempty(AST* expr) {
-  return !expr || !dynamic_cast<List*>(expr) || dynamic_cast<List*>(expr)->empty;
+bool tryempty(pAST expr) {
+  return !expr || !dynamic_pointer_cast<List>(expr) || dynamic_pointer_cast<List>(expr)->empty;
 }
 
-AST* prim_cond(List* expr, Env& env) {
+pAST prim_cond(pList expr, Env& env) {
   if (!expr->head || tryempty(tryhead(expr)) || tryempty(trytail(tryhead(expr))) ) {
     cout << "Error: expecting (condition expr) ... to cond but found " << expr->lisp_string() << endl;
     return NULL;
   }
-  List* path = dynamic_cast<List*>(expr->head);
-  AST* condition = eval(path->head,env);
-  Atom* b = dynamic_cast<Atom*>(condition);
+  pList path = dynamic_pointer_cast<List>(expr->head);
+  pAST condition = eval(path->head,env);
+  pAtom b = dynamic_pointer_cast<Atom>(condition);
   if (b && b->equals(at("t"))) { // condition true, evaluate branch
     return eval(path->tail->head,env);
   }
@@ -92,13 +98,13 @@ AST* prim_cond(List* expr, Env& env) {
   }
 }
 
-AST* prim_cdr(List* expr, Env& env) {
+pAST prim_cdr(pList expr, Env& env) {
   if (!expr->head) {
     cout << "Error: expecting 1 argument to cdr but found " << expr->lisp_string() << endl;
     return NULL;
   }
-  AST* res = eval(expr->head,env);
-  List* xs = dynamic_cast<List*>(res);
+  pAST res = eval(expr->head,env);
+  pList xs = dynamic_pointer_cast<List>(res);
   if (!xs) {
     cout << "Cannot apply primitive cdr on non-list argument " << res->lisp_string() << endl;
     return NULL;
@@ -112,27 +118,27 @@ AST* prim_cdr(List* expr, Env& env) {
   }
 }
 
-List* evalList(List* expr, Env& env) {
+pList evalList(pList expr, Env& env) {
   if (expr->empty) return nl;
   else {
-    AST* headE = eval(expr->head, env);
+    pAST headE = eval(expr->head, env);
     return cons(headE, evalList(expr->tail, env));
   }
 }
-AST* prim_list(List* expr, Env& env) { return evalList(expr,env); }
+pAST prim_list(pList expr, Env& env) { return evalList(expr,env); }
 
 /* NOTE: in the implementation of
 substitute, we need to ignore the newly defined variable.*/
-AST* prim_define(List* expr, Env& env) {
+pAST prim_define(pList expr, Env& env) {
   if (!expr->head || !expr->tail->head) {
     cout << "Error: expecting 2 arguments to define! but found " << expr->lisp_string() << endl;
     return NULL;
   }
-  Atom* var = dynamic_cast<Atom*>(expr->head);
+  pAtom var = dynamic_pointer_cast<Atom>(expr->head);
   if (var) {
     // lambda definitions are given in quotes,
     // we can enable recursive definitions
-    AST* value = eval(expr->tail->head,env);
+    pAST value = eval(expr->tail->head,env);
     env[var->str] = value;
     return value;
   }
@@ -142,13 +148,13 @@ AST* prim_define(List* expr, Env& env) {
   }
 }
 
-AST* prim_car(List* expr, Env& env) {
+pAST prim_car(pList expr, Env& env) {
   if (!expr->head) {
     cout << "Error: expecting 1 argument to car but found " << expr->lisp_string() << endl;
     return NULL;
   }
-  AST* res = eval(expr->head,env);
-  List* xs = dynamic_cast<List*>(res);
+  pAST res = eval(expr->head,env);
+  pList xs = dynamic_pointer_cast<List>(res);
   if (!xs) {
     cout << "Cannot apply primitive car on non-list argument " << res->lisp_string() << endl;
     return NULL;
@@ -163,16 +169,16 @@ AST* prim_car(List* expr, Env& env) {
 }
 
 // is the head a quote?
-bool is_quote(AST* e) {
+bool is_quote(pAST e) {
   return tryhead(e)
     && tryhead(e)->is_atom()
-    && dynamic_cast<Atom*>(tryhead(e))->equals(at("quote"));
+    && dynamic_pointer_cast<Atom>(tryhead(e))->equals(at("quote"));
 }
-set<string> collect_atom_strings(List* xs) {
+set<string> collect_atom_strings(pList xs) {
   if (xs->empty) return set<string>();
-  else if (dynamic_cast<Atom*>(xs->head)) {
+  else if (dynamic_pointer_cast<Atom>(xs->head)) {
     set<string> rec = collect_atom_strings(xs->tail);
-    rec.insert(dynamic_cast<Atom*>(xs->head)->str);
+    rec.insert(dynamic_pointer_cast<Atom>(xs->head)->str);
     return rec;
   }
   else {
@@ -182,30 +188,30 @@ set<string> collect_atom_strings(List* xs) {
   }
 }
 // checks if it's a lambda expression and returns the arguments in argument-list
-set<string> lambda_arguments(AST* e) {
-  List* fn = dynamic_cast<List*>(e);
-  Atom* lambda_name = dynamic_cast<Atom*>(tryhead(fn));
-  List* args = dynamic_cast<List*>(tryhead(trytail(fn)));
+set<string> lambda_arguments(pAST e) {
+  pList fn = dynamic_pointer_cast<List>(e);
+  pAtom lambda_name = dynamic_pointer_cast<Atom>(tryhead(fn));
+  pList args = dynamic_pointer_cast<List>(tryhead(trytail(fn)));
   if (fn && lambda_name && lambda_name->equals(at("lambda")) && args) {
     return collect_atom_strings(args);
   }
   else return set<string>();
 }
-set<string> define_vars(AST* e) {
-  List* df = dynamic_cast<List*>(e);
-  Atom* define_name = dynamic_cast<Atom*>(tryhead(df));
-  Atom* var = dynamic_cast<Atom*>(tryhead(trytail(df)));
+set<string> define_vars(pAST e) {
+  pList df = dynamic_pointer_cast<List>(e);
+  pAtom define_name = dynamic_pointer_cast<Atom>(tryhead(df));
+  pAtom var = dynamic_pointer_cast<Atom>(tryhead(trytail(df)));
   if (df && define_name && define_name->equals(at("define!")) && var) return set<string>{var->str};
   else return set<string>();
 }
-AST* substitute(Atom* var, AST* value, AST* body) {
+pAST substitute(pAtom var, pAST value, pAST body) {
   //cout << "substitute " << var->lisp_string() << " for " << value->lisp_string() << " in " << body->lisp_string() << endl;
   if (body->is_atom()) {
-    Atom* atom = dynamic_cast<Atom*>(body);
+    pAtom atom = dynamic_pointer_cast<Atom>(body);
     return atom->equals(var) ? value : atom;
   }
   else {
-    List* xs = dynamic_cast<List*>(body);
+    pList xs = dynamic_pointer_cast<List>(body);
     if (xs->empty) return nl;
     else {
       if (is_quote(xs) || /* don't continue substitution in quote */
@@ -213,8 +219,8 @@ AST* substitute(Atom* var, AST* value, AST* body) {
         define_vars(xs).count(var->str) >= 1) /* define with same variable */
       { return xs; }
       else {
-        AST* new_head = substitute(var,value,xs->head);
-        List* new_tail = dynamic_cast<List*>(substitute(var,value,xs->tail));
+        pAST new_head = substitute(var,value,xs->head);
+        pList new_tail = dynamic_pointer_cast<List>(substitute(var,value,xs->tail));
         return cons(new_head,new_tail);
       }
     }
@@ -223,18 +229,18 @@ AST* substitute(Atom* var, AST* value, AST* body) {
 
 /* NOTE: in the implementation of substitute, we need to take care of
 lambdas and stop substitution of the variables in the argument-list. */
-AST* prim_lambda_apply(AST* args_ast, AST* body, List* is, Env& env) {
-  List* args = dynamic_cast<List*>(args_ast);
+pAST prim_lambda_apply(pAST args_ast, pAST body, pList is, Env& env) {
+  pList args = dynamic_pointer_cast<List>(args_ast);
   if (args) {
     if (args->empty) {
       return eval(body,env);
     }
     else {
-      Atom* var = dynamic_cast<Atom*>(args->head);
+      pAtom var = dynamic_pointer_cast<Atom>(args->head);
       if (var) {
         if (!is->empty) {
           // substitute input for argument
-          AST* new_body = substitute(var,is->head, body);
+          pAST new_body = substitute(var,is->head, body);
           // continue recursively
           return prim_lambda_apply(args->tail,new_body,is->tail, env);
         }
@@ -256,23 +262,23 @@ AST* prim_lambda_apply(AST* args_ast, AST* body, List* is, Env& env) {
 }
 
 /* returns an association list representing the current environment bindings. */
-AST* prim_environment(List* expr, Env& env) {
+pAST prim_environment(pList expr, Env& env) {
   /* (define! a '1) and (define! b '(a b c))   become   ( (a 1)  (b (a b c)) )  */
-  List* assocs = nl;
+  pList assocs = nl;
   for (auto const& x : env) {
-    List* pair = cons(at(x.first),cons(x.second,nl));
+    pList pair = cons(at(x.first),cons(x.second,nl));
     assocs = cons(pair,assocs);
   }
   return assocs;
 }
 
-AST* prim_decr(List* expr, Env& env) {
+pAST prim_decr(pList expr, Env& env) {
   if (!expr->head) {
     cout << "Error: expecting 1 argument to decr but found " << expr->lisp_string() << endl;
     return NULL;
   }
-  AST* res = eval(expr->head,env);
-  Atom* atom = dynamic_cast<Atom*>(res);
+  pAST res = eval(expr->head,env);
+  pAtom atom = dynamic_pointer_cast<Atom>(res);
   if (!atom) {
     cout << "Cannot apply primitive decr on non-atom argument " << res->lisp_string() << endl;
     return NULL;
@@ -286,12 +292,12 @@ AST* prim_decr(List* expr, Env& env) {
   return at(to_string(n-1));
 }
 
-AST* prim_plus(List* expr, Env& env) {
-  List* xs = expr;
+pAST prim_plus(pList expr, Env& env) {
+  pList xs = expr;
   int acc = 0;
   while(!xs->empty) {
-    AST* evaled = eval(xs->head, env);
-    Atom* at = dynamic_cast<Atom*>(evaled);
+    pAST evaled = eval(xs->head, env);
+    pAtom at = dynamic_pointer_cast<Atom>(evaled);
     if(!at) {
       cout << "Cannot apply primitive + with non-atom arg " << evaled->lisp_string() << endl;
       return NULL;
@@ -308,7 +314,7 @@ AST* prim_plus(List* expr, Env& env) {
   return at(to_string(acc));
 }
 
-AST* prim_standalone_lambda(List* expr, Env& env) {
+pAST prim_standalone_lambda(pList expr, Env& env) {
   cout << "Cannot evaluate standalone primitive lambda with " << expr->lisp_string() << endl;
   return NULL;
 }

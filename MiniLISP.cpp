@@ -23,14 +23,14 @@ int main(int k, char ** args){
   /* 2. evaluate it. */
   /* 3. print evaluated form. */
 
-  AST* expr = parse_full(s);
+  pAST expr = parse_full(s);
   if (!expr) {
     cout << "Error parsing " << s << endl;
     return 0;
   }
 
   setup_interpreter();
-  AST* result = Eval(expr);
+  pAST result = Eval(expr);
   if (!result) {
     cout << "Error evaluating " << expr->lisp_string() << endl;
     return 0;

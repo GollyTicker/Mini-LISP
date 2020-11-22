@@ -14,3 +14,9 @@
 
 * since we're writing a lisp interpreter inside lisp, couldn't we also
   duplicate the tests accordingly instead of writing all of them again?
+
+
+
+* optimization with -O3
+
+* profiling with: g++ -pg MiniLISP.cpp -o MiniLISP && echo "(...)" | ./MiniLISP | gprof MiniLISP gmon.out | head -n 50

@@ -5,23 +5,23 @@
 #include <streambuf>
 #include <sstream>
 
-typedef map<string,AST*> Env;
-typedef AST* evalProc(List*, Env&);
+typedef map<string,pAST> Env;
+typedef pAST evalProc(pList, Env&);
 
 /* perhaps we can make the evaluation
 cleaner by adding a procedure type to AST? */
 
 // procedure that evaluates an expression using the environment.
 // may change the environment.
-AST* eval(AST* expr, Env& env);
+pAST eval(pAST expr, Env& env);
 
 #include "EvalPrimitives.cpp"
 
-AST* eval(AST* expr, Env& env) {
+pAST eval(pAST expr, Env& env) {
   if (debug) cout << "eval: " << expr-> lisp_string() << endl;
 
   if (expr->is_atom()) {
-    Atom* a = dynamic_cast<Atom*>(expr);
+    pAtom a = dynamic_pointer_cast<Atom>(expr);
     if (env.count(a->str) >= 1) return env[a->str];
     else {
       cout << "Cannot eval atom " << a->lisp_string() << ". Missing definition in env." << endl;
@@ -29,22 +29,22 @@ AST* eval(AST* expr, Env& env) {
     }
   }
   else { // expr is list
-    List* xs = dynamic_cast<List*>(expr);
+    pList xs = dynamic_pointer_cast<List>(expr);
     if(!xs->empty) {
-      AST* hd = xs->head;
+      pAST hd = xs->head;
       // head = predefined atom => apply
       // head = atom => lookup atom and apply
       // head = lambda => apply lambda
       // otherwise => evaluate and repeat
 
-      Atom* atom = dynamic_cast<Atom*>(hd);
+      pAtom atom = dynamic_pointer_cast<Atom>(hd);
       if (atom) {
         if (predefs.count(atom->str) >= 1) {
           // cout << "Applying primitive " << atom->str << " on env of size " << env.size() << endl;
           return predefs[atom->str](xs->tail,env); // evaluation of args based on primitives
         }
         else if (env.count(atom->str) >= 1) {
-          //List* eagerArgs = evalList(xs->tail, env); // eager evaluation of args
+          //pList eagerArgs = evalList(xs->tail, env); // eager evaluation of args
           //cout << "eval "<< atom->str << " with args " << xs->tail->lisp_string() << endl;
           return eval(cons(env[atom->str],xs->tail),env);
         }
@@ -53,11 +53,11 @@ AST* eval(AST* expr, Env& env) {
           return NULL;
         }
       }
-      List* fn = dynamic_cast<List*>(hd);
-      Atom* fname = dynamic_cast<Atom*>(tryhead(fn));
+      pList fn = dynamic_pointer_cast<List>(hd);
+      pAtom fname = dynamic_pointer_cast<Atom>(tryhead(fn));
       if (fname && fname->equals(at("lambda"))) { /*fn is lambda */
-        AST* args = tryhead(trytail(fn));
-        AST* body = tryhead(trytail(trytail(fn)));
+        pAST args = tryhead(trytail(fn));
+        pAST body = tryhead(trytail(trytail(fn)));
         return prim_lambda_apply(args,body,xs->tail,env);
       }
       else { /* evaluate fn and repeat */
@@ -67,7 +67,7 @@ AST* eval(AST* expr, Env& env) {
         ((cond ('() '+) ('t 'car)) '(a b c))
         This isn't possible in online lisp implementations.
         */
-        AST* evaledfn = eval(fn, env);
+        pAST evaledfn = eval(fn, env);
         // defer evaluation of arguments to next eval
         return eval(cons(evaledfn,xs->tail),env);
       }
@@ -117,7 +117,7 @@ void add_standard_library(Env& env) {
 }
 
 
-AST* Eval(AST* expr) {
+pAST Eval(pAST expr) {
   Env e;
   add_standard_library(e);
   return eval(expr, e);

@@ -9,7 +9,7 @@ main = do
   ExitSuccess <- compile "MiniLISP.cpp" "MiniLISP"
   processLinewise
 
-compile cpp out = command [] "g++" [cpp,"-o",out]
+compile cpp out = command [] "g++" ["-O3",cpp,"-o",out]
 
 runTests = zipWithM ( \inp ex ->
   do
