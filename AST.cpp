@@ -58,11 +58,12 @@ string List::to_string() {
 string List::lisp_string() {
   if (empty) return "()";
   else {
-    /* MAYBE-DO: special syntax for quote? */
     return "(" + head->lisp_string() + (tail->empty?"":" ") + tail->lisp_string().substr(1);
   }
 }
 
+// shared_ptr for memory management.
+// shared_ptr implements automatic reference counting and deletion when it reaches 0.
 typedef shared_ptr<AST> pAST;
 typedef shared_ptr<Atom> pAtom;
 typedef shared_ptr<List> pList;

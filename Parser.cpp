@@ -3,28 +3,18 @@
 
 #include<set>
 
-// parses single character c and returns new index or fails with -1
-int character(char c, string s, int i) {
-  if (debug) cout << "character("<<c<<","<<i<<")"<< endl;
-  if (i < s.length() && s[i] == c) return i+1;
-  else return -1; /* failure */
-}
+#include "AST.cpp"
 
-// parses and skips whitespaces
-int whitespace(string s, int i) {
-  if (debug) cout << "whitespace("<<i<<")"<< endl;
-  while(i < s.length() && s[i] == ' ') i++;
-  return i;
-}
+// utilities for parsing. defined at bottom
+int character(char c, string s, int i);
+int whitespace(string s, int i);
+char lookahead(string s, int i);
 
-char lookahead(string s, int i) {
-  if (debug) cout << "lookahead("<<i<<") = " << s[i] << endl;
-  return s[i];
-}
-
+// parsing functions for each expression.
 pair<pAST,int> lisp_expr(string s, int i);
 pair<pList,int> list_expr(string s, int i);
 pair<pAtom,int> atom_expr(string s, int i);
+
 #define NO_RESULT(T) make_pair((T)NULL,-1)
 
 // parses full string into a lisp expression or fails with a NULL pointer.
@@ -36,7 +26,7 @@ pAST parse_full(string s) {
   if (iEnd != -1) {
     int iFin = whitespace(s,iEnd);
     if (iFin == s.length()) return expr;
-    else {// more content awaiting
+    else {
       cout << "Finished parsing EXPR, but stream continues with " << s[iFin] << " at " << iFin << endl;
       return NULL;
     }
@@ -81,18 +71,18 @@ set<char> atom_breaks{' ', ')', '(', '\''};
 pair<pAtom,int> atom_expr(string s, int i) {
   if (debug) cout << "atom_expr("<<i<<")" << endl;
   int i0 = i;
-  /*read atom name until ( or end or whitespace.*/
+  /*read atom name until a character in atom_breaks is encountered */
   while (i < s.length()) {
     if (i==i0 && atom_breaks.count(s[i])>=1) {
       cout << "Expecting ATOM, but found " << s[i] << " at " << i << endl;
       return NO_RESULT(pAtom);
     }
-    else if (s[i] == ' ' || s[i] == ')' || s[i] == '(' || s[i] == '\'') {
+    else if (atom_breaks.count(s[i])>=1) {
       break;
     }
     else i++;
   }
-  /*convert from i0 until i (exlcuding) to atom_name*/
+  /*convert from i0 until i (excluding) to atom_name*/
   string atomname = s.substr(i0,i-i0);
   return make_pair(at(atomname),i);
 }
@@ -131,4 +121,25 @@ pair<pList,int> list_expr(string s, int i1) {
     cout << "Expecting EXPR or end of list, but found end of stream at" << iElem << endl;
     return NO_RESULT(pList);
   }
+}
+
+/* UTILITIES */
+
+// parses single character c and returns new index or fails with -1
+int character(char c, string s, int i) {
+  if (debug) cout << "character("<<c<<","<<i<<")"<< endl;
+  if (i < s.length() && s[i] == c) return i+1;
+  else return -1; /* failure */
+}
+
+// parses and skips whitespaces
+int whitespace(string s, int i) {
+  if (debug) cout << "whitespace("<<i<<")"<< endl;
+  while(i < s.length() && s[i] == ' ') i++;
+  return i;
+}
+
+char lookahead(string s, int i) {
+  if (debug) cout << "lookahead("<<i<<") = " << s[i] << endl;
+  return s[i];
 }
