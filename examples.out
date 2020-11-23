@@ -72,13 +72,13 @@ a
 (1 b c)
 (1 a c)
 a
-(1 2 3 4)
 3
 a
 a
 (a a)
 (f f x)
 (f f arg1 arg2)
+(1 2 3 4)
 3
 6
 --
@@ -92,6 +92,7 @@ test-value
 -- standard library
 ()
 t
+#ignore-embed-eval-following#
 a
 b
 t

@@ -11,19 +11,27 @@ main = do
 
 compile cpp out = command [] "g++" ["-O3",cpp,"-o",out]
 
+skip_rule = "#ignore-embed-eval#"
+
 runTests = zipWithM ( \inp ex ->
-  do
-    Stdout out' <- command [Stdin inp] "./MiniLISP" []
-    let out = init out' -- ignore \n at end
-    if (out == ex)
-      then putStrLn (":) | " ++ inp ++ " => " ++ ex)
-      else putStrLn ("XX | " ++ inp ++ " => " ++ ex ++ ", but got: " ++ out )
-    return (out == ex)
+  if isInfixOf "(eval" inp && (skip_rule `isInfixOf` inp) then
+    putStrLn ("SKIP | " ++ inp ++ " => " ++ ex ++ ", due to " ++ skip_rule)
+    >> return True
+  else
+    do
+      Stdout out' <- command [Stdin inp] "./MiniLISP" []
+      let out = init out' -- ignore \n at end
+      if (out == ex)
+        then putStrLn (":) | " ++ inp ++ " => " ++ ex)
+        else putStrLn ("XX | " ++ inp ++ " => " ++ ex ++ ", but got: " ++ out )
+      return (out == ex)
   )
 
 testCases =
   takeWhile (/="-- lisp self-interpreter")
   . filter (\x -> length x > 0 && (take 2 x /= "--"))
+
+embedEvalCases = takeWhile (\s -> not (isInfixOf "#ignore-embed-eval-following#" s))
 
 splitLines = lines . replace "\\\n" "" -- use backslash for multi-line expressions
 
@@ -45,7 +53,7 @@ processLinewise = do
 
   putStrLn $ "*************\nRepeating tests with lisp self-interpreter: " ++ replacementRule
 
-  res2 <- runTests (map embedInEval inps) expt
+  res2 <- runTests (map embedInEval (embedEvalCases inps)) expt
 
   if (and res1 && and res2)
     then putStrLn "*+++ All tests passed! +++*"

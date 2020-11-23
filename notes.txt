@@ -1,6 +1,5 @@
 * Perhaps we could also implement a variant of lisp, where evaluation of an unknown symbol just stay the symbol itself (like in Wolfram Mathematica).
 
-
 * bootstraping thecompiler in the sense, that we can use rewritings to update the language implementation would be a cool idea. it would make it independent of C++ !
 
 * as a note to the parallel flowboard project:
@@ -12,9 +11,6 @@
   via == is cumbersome and not the best we can achieve.
   primary inspiration is scalas pattern matching and PROLOGs matching.
 
-* since we're writing a lisp interpreter inside lisp, couldn't we also
-  duplicate the tests accordingly instead of writing all of them again?
-
 * optimization with -O3
 
 * profiling with: g++ -pg MiniLISP.cpp -o MiniLISP && echo "(...)" | ./MiniLISP | gprof MiniLISP gmon.out | head -n 50
@@ -22,3 +18,7 @@
 * use weak_ptr to memoize results of eval and store it in a map.
   weak_ptr doesn't contribute to reference count and keeps
   garbage collection enabled for shared pointers.
+
+* TODOs:
+  * package into docker container
+  * publish online as a repl?

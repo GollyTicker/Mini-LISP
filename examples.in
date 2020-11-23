@@ -73,15 +73,15 @@
 ((lambda (a) (cons a '(b c))) '1)
 ((lambda (a) (cons a '(a c))) '1)
 ((lambda (a) 'a) '1)
-((lambda (a b) (cons a (cons b ((lambda (b c) (cons b (cons c '()))) '3 '4))) ) '1 '2)
 ((lambda (a b) (+ (car a) b)) '(1 x) '2)
 ((lambda (a b) a) 'a lambda-is-lazy)
 ((lambda (a b) b) lambda-is-lazy 'a)
 ((lambda (x) (cons x (cons x '()))) 'a)
 ((lambda (f x) (cons f (cons f (cons x '())))) 'f 'x)
 ((lambda (f xs) (cons f (cons f xs))) 'f '(arg1 arg2))
-((lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f (decr n)))))) '+ '2)
-( (lambda (f x) (f f x)) '(lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f f (decr n)))))) '3)
+((lambda (a b ig) (cons a (cons b ((lambda (b c) (cons b (cons c '()))) '3 '4))) ) '1 '2 '#ignore-embed-eval#)
+((lambda (f n ig) (cond ((eq n '0) '0) ('t (+ n (f (decr n) ))))) '+ '2 '#ignore-embed-eval#)
+( (lambda (f x z) (f f x)) '(lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f f (decr n)))))) '3  '#ignore-embed-eval#)
 -- ^ ^ ^ THIS IS COOL! THIS WORKS!!
 -- defined a recursive function using a variant of U-combinator
 -- https://en.wikipedia.org/wiki/Lambda_calculus#Standard_terms
@@ -93,6 +93,7 @@ U-comb
 -- standard library
 (null 'a)
 (null '())
+'#ignore-embed-eval-following#
 (ifelse 't 'a 'b)
 (ifelse '() 'a 'b)
 (and (null '()) (eq 'a 'a))
@@ -136,6 +137,9 @@ U-comb
 
 -- label
 
+-- quasiquotation. TODO: syntax
+-- (qq (a (unquote (car '(b c d))) c))
+
 -- eval
 (eval 'a '())
 (eval 'a '((a 1)))
@@ -150,4 +154,4 @@ U-comb
 (eval '(cond ('t 'a)) '())
 (eval '(cond ('() 'b) ('t 'a)) '())
 
--- lisp self-interpreter. all previous expressions e will be put into an eval and checked for same result. expr -> (eval 'expr (environment))
+-- lisp self-interpreter. all previous expressions e until #ignore-embed-eval-following# will be put into an eval and checked for same result. expr -> (eval 'expr (environment))

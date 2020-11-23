@@ -24,6 +24,7 @@
     ) \
   ) \
 )
+(define! qq 'TODO-define-quasiquotation)
 (define! map '(lambda (f xs) (foldr (lambda (x r) (cons (f x) r)) '() xs)))
 (define! is-quote '(lambda (e) (and (not (atom e)) (eq (car e) 'quote))))
 (define! lambda-args '(lambda (e) \
@@ -42,6 +43,13 @@
     ('t (map (lambda (a) (substitute var val a)) body)) \
     ('t 'TODO-define!-non-substitution-not-implemented) \
   ) \
+))
+(define! eval-lambda '(lambda (body args inps env) \
+  (eval (foldl \
+    (lambda (acc kv) (substitute (car kv) (cadr kv) acc)) \
+    body \
+    (zip args inps)) \
+  env) \
 ))
 (define! eval \
   '(lambda (e env) \
@@ -74,15 +82,7 @@
               ) \
             (ifelse \
               (and (not (null hd)) (eq (car hd) 'lambda)) \
-                (ifelse 't (car '(lambda-not-implemented \
-            DONT_RUN_THIS_!!_it_is_unoptimised_and_takes_lots_of_memory.However_its_correct. \
-                  )) \
-                  (eval (foldl \
-                      (lambda (acc kv) (substitute (car kv) (cadr kv) acc)) \
-                      (caddr hd) \
-                      (zip (cadr hd) tl)) \
-                  env) \
-                ) \
+                (eval-lambda (caddr hd) (cadr hd) tl env) \
               (eval (cons (eval hd env) tl) env)) \
           ) \
         ) \

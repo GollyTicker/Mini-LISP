@@ -3,6 +3,8 @@
 A mini-LISP interpreter in C++ which itself implements a larger LISP.
 Inspired by [The Roots of LISP](http://languagelog.ldc.upenn.edu/myl/llog/jmc.pdf).
 
+*TODO*: make note on the fact, that the implementation is not exactly like gnu clisp etc. implementations.
+
 The C++ implements a mini-LISP interpreter consisting of:
 * `quote`
 * `atom`
@@ -12,18 +14,33 @@ The C++ implements a mini-LISP interpreter consisting of:
 * `cons` (and it's abbreviation `list`)
 * `cond`
 * `lambda`
-* `define!` (recursive binding)
+* `define!` (recursive binding) (*TODO*: local variable binding `define`)
 * `environment` (returns all bindings to re-direct standard library)
 * `+` and `decr` (convenience for example numerical functions)
 * *memory management and garbage collection*
 
 The mini-LISP interpreter implements a larger LISP additionally containing:
-* `quasiquotation`
-* (`algebraic data types`)
+* `quasiquotation` ?
 
 How to run:
 * installation: *will be documented...*
-* `./generate-readme.sh` to run the compile and run the interpreter on the lines in `example.in` and copy their result into the readme.
+* `./generate-readme.sh` to run the compile and run the interpreter on the lines in `example.in` and copy their result into the readme
+* a REPL via `./REPL`
+
+Features and optimisations:
+* head-first evaluation. expressions where head is computed and hence choses which functionto evaluate:
+  * for example `((cond ('() '+) ('t 'car)) '(a b c))` can be run with our interpreter and evaluates to `a`
+  * whereas online interpreters such as [this one](https://rextester.com/l/common_lisp_online_compiler) (GNU clisp) cannot evaluate such expressions
+* memory management via smart pointers (`shared_ptr` and `weak_ptr`) in `AST.cpp`
+* lazy variable bindings in `lambda`s. this allows us to define and express recursive functions via logic-combinators. This isn't possible with the default GNU clisp.
+  * for example, we can run `(lambda (f x) (f f x)) '(lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f f (decr n)))))) '3)` to compute the sum of the first three integers
+  * We cannot use a definition in this form in GNU clisp due to it's head being itself a function.
+* since expressions are purely functional (`define!` is only to be used for top-level definitions), we can *memoise* results of evaluations in `Eval.cpp`
+  * in complex and long running operations, 13% to 18% of all expressions can be simply looked up.
+  * this optimisation isn't implemented in the interpreter written in Lisp itself,
+  hence complex test-cases which would take long to execute are excluded during testing.
+* a small standard library can be found in `standard-library.lisp`
+* improvements from C++: `g++ -O3 ...`
 
 Here are some examples:
 %%% runhaskell run-examples.hs
