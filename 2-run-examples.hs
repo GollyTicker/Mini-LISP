@@ -6,10 +6,8 @@ import Data.List
 import Data.String.Utils
 
 main = do
-  ExitSuccess <- compile "MiniLISP.cpp" "MiniLISP"
+  ExitSuccess <- command [] "bash" ["2-compile-cpp.sh"]
   processLinewise
-
-compile cpp out = command [] "g++" ["-O3",cpp,"-o",out]
 
 skip_rule = "#ignore-embed-eval#"
 
@@ -19,7 +17,7 @@ runTests = zipWithM ( \inp ex ->
     >> return True
   else
     do
-      Stdout out' <- command [Stdin inp] "./MiniLISP" []
+      Stdout out' <- command [] "./MiniLISP" ["-e",inp]
       let out = init out' -- ignore \n at end
       if (out == ex)
         then putStrLn (":) | " ++ inp ++ " => " ++ ex)
@@ -36,8 +34,8 @@ embedEvalCases = takeWhile (\s -> not (isInfixOf "#ignore-embed-eval-following#"
 splitLines = lines . replace "\\\n" "" -- use backslash for multi-line expressions
 
 processLinewise = do
-  inputs <- splitLines <$> readFile "examples.in"
-  expected <- splitLines <$> readFile "examples.out"
+  inputs <- splitLines <$> readFile "1-examples.in"
+  expected <- splitLines <$> readFile "1-examples.out"
 
   let inps = testCases inputs
       expt = testCases expected

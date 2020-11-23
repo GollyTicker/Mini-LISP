@@ -17,10 +17,7 @@ pAST prim_quote(pList expr, Env& env) {
   else return expr->head;
 }
 
-template <class A, class B>
-shared_ptr<B> cast(shared_ptr<A> a) {
-  return a ? dynamic_cast<B>(*a) : NULL;
-}
+pAST substitute(pAtom var, pAST value, pAST body);
 
 pAST prim_atom(pList expr, Env& env) {
   if (!expr->head) {
@@ -130,14 +127,32 @@ pAST prim_list(pList expr, Env& env) { return evalList(expr,env); }
 /* NOTE: in the implementation of
 substitute, we need to ignore the newly defined variable.*/
 pAST prim_define(pList expr, Env& env) {
+  if (!expr->head || !expr->tail->head || !expr->tail->tail->head) {
+    cout << "Error: expecting 3 arguments to define but found " << expr->lisp_string() << endl;
+    return NULL;
+  }
+  pAtom var = dynamic_pointer_cast<Atom>(expr->head);
+  if (var) {
+    pAST new_body = substitute(var, /* new value */ expr->tail->head, /* body*/expr->tail->tail->head);
+    //cout << "after substitute " << new_body->lisp_string()<< endl;
+    return eval(new_body,env);
+  }
+  else {
+    cout << "Cannot apply primitive define to non-atom " << expr->head->lisp_string() << endl;
+    return NULL;
+  }
+}
+
+/* NOTE: in the implementation of
+substitute, we need to ignore the newly defined variable.*/
+pAST prim_define_global(pList expr, Env& env) {
   if (!expr->head || !expr->tail->head) {
     cout << "Error: expecting 2 arguments to define! but found " << expr->lisp_string() << endl;
     return NULL;
   }
   pAtom var = dynamic_pointer_cast<Atom>(expr->head);
   if (var) {
-    // lambda definitions are given in quotes,
-    // we can enable recursive definitions
+    // global binding enables recursive definition
     pAST value = eval(expr->tail->head,env);
     env[var->str] = value;
     return value;
@@ -201,7 +216,9 @@ set<string> define_vars(pAST e) {
   pList df = dynamic_pointer_cast<List>(e);
   pAtom define_name = dynamic_pointer_cast<Atom>(tryhead(df));
   pAtom var = dynamic_pointer_cast<Atom>(tryhead(trytail(df)));
-  if (df && define_name && define_name->equals(at("define!")) && var) return set<string>{var->str};
+  if (df && define_name
+      && (define_name->equals(at("define!")) || define_name->equals(at("define")))
+      && var) return set<string>{var->str};
   else return set<string>();
 }
 pAST substitute(pAtom var, pAST value, pAST body) {
@@ -319,7 +336,7 @@ pAST prim_standalone_lambda(pList expr, Env& env) {
   return NULL;
 }
 
-void setup_interpreter() {
+void add_primitives() {
   if (predefs.size() == 0){
     predefs.insert({"quote",&prim_quote});
     predefs.insert({"atom",&prim_atom});
@@ -331,7 +348,8 @@ void setup_interpreter() {
     predefs.insert({"cons",&prim_cons});
     predefs.insert({"cond",&prim_cond});
     predefs.insert({"lambda",&prim_standalone_lambda});
-    predefs.insert({"define!",&prim_define});
+    predefs.insert({"define",&prim_define});
+    predefs.insert({"define!",&prim_define_global});
     predefs.insert({"list",&prim_list});
     predefs.insert({"environment",&prim_environment});
   }

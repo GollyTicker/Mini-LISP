@@ -12,9 +12,12 @@ RUN ghc --version
 # install app
 RUN mkdir /app
 WORKDIR /app
-COPY *.cpp *.hs examples* README.md.template *.lisp *.sh ./
 
-RUN pwd
-RUN ls
+# copy files
+COPY 0* 1* 2* 3* 4* ./
 
-RUN ./generate-readme.sh
+# compile
+RUN ./2-compile-cpp.sh
+
+# REPL as entrypoint
+CMD ./MiniLISP

@@ -1,4 +1,2 @@
-# ignore binaries without extension
-*
-!*.*
-!*/
+# ignore binary
+MiniLISP

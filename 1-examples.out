@@ -89,6 +89,9 @@ a
 test-value
 (lambda (f x) (f f x))
 
+-- define
+(b 1)
+
 -- standard library
 ()
 t

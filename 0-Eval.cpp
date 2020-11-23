@@ -8,14 +8,11 @@
 typedef map<string,pAST> Env;
 typedef pAST evalProc(pList, Env&);
 
-/* perhaps we can make the evaluation
-cleaner by adding a procedure type to AST? */
-
 // procedure that evaluates an expression using the environment.
 // may change the environment.
 pAST eval(pAST expr, Env& env);
 
-#include "EvalPrimitives.cpp"
+#include "0-EvalPrimitives.cpp"
 
 map< weak_ptr<AST>, shared_ptr<AST>, owner_less< weak_ptr<AST> > > eval_memoised;
 
@@ -32,8 +29,6 @@ pAST eval(pAST expr, Env& env) {
   // memoisation. similar to garbage collection.
   eval_runs++;
   if (eval_runs % 1000 == 0) {
-    //cout << "memoization hits: " << memoization_hit << " of total " << runs << " being " << ((((double)memoization_hit) / ((double)runs))*100) << " %"<<endl;
-
     // remove pointers not used anymore and free up memory.
     for (auto i = eval_memoised.begin(), e = eval_memoised.end(); i != e;) {
       auto current = i++;
@@ -41,7 +36,6 @@ pAST eval(pAST expr, Env& env) {
         eval_memoised.erase(current);
       }
     }
-    //cout << "Expired: " << invalids << " of total " << total << endl;
   }
 
 
@@ -89,10 +83,9 @@ pAST eval(pAST expr, Env& env) {
         }
         else { /* evaluate fn and repeat */
           /*
-          Evaluating the head first enables
-          computing head directly:
+          Evaluating the head first enables computed head before full evaluation:
           ((cond ('() '+) ('t 'car)) '(a b c))
-          This isn't possible in online lisp implementations.
+          This isn't possible in some other lisp implementations
           */
           pAST evaledfn = eval(fn, env);
           result = eval(cons(evaledfn,xs->tail),env);
@@ -127,10 +120,7 @@ string remove_backslash_newlines(string& s) {
 
 /* standard library definitions */
 void add_standard_library(Env& env) {
-  /* TODO: define should be used as search and replace, but now, it's being stronger
-    and it's evaluated first! What if we don't use the quotation?
-    We could use non-quoted definitions for metaprogramming!*/
-  string std_lib = "standard-library.lisp";
+  string std_lib = "1-standard-library.lisp";
   ifstream file(std_lib);
   string std_defs;
   if (file.is_open()) {
@@ -150,9 +140,9 @@ void add_standard_library(Env& env) {
   }
 }
 
-
-pAST Eval(pAST expr) {
+Env init_interpreter() {
+  add_primitives();
   Env e;
   add_standard_library(e);
-  return eval(expr, e);
+  return e;
 }

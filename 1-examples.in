@@ -90,6 +90,9 @@
 test-var
 U-comb
 
+-- define
+(define a 'b (define s (car '(1 2 3)) (list a s) ) )
+
 -- standard library
 (null 'a)
 (null '())

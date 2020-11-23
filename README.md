@@ -3,7 +3,7 @@
 A mini-LISP interpreter in C++ which itself implements a larger LISP.
 Inspired by [The Roots of LISP](http://languagelog.ldc.upenn.edu/myl/llog/jmc.pdf).
 
-*TODO*: make note on the fact, that the implementation is not exactly like gnu clisp etc. implementations.
+*TODO*: make note on the fact, that the implementation is not exactly like gnu clisp etc. implementations. and the reason and purpose of this impl.
 
 The C++ implements a mini-LISP interpreter consisting of:
 * `quote`
@@ -14,18 +14,18 @@ The C++ implements a mini-LISP interpreter consisting of:
 * `cons` (and it's abbreviation `list`)
 * `cond`
 * `lambda`
-* `define!` (recursive binding) (*TODO*: local variable binding `define`)
-* `environment` (returns all bindings to re-direct standard library)
+* variable binding with `define` + global definitions with `define!`
+* `environment` (returns all global global definitions)
 * `+` and `decr` (convenience for example numerical functions)
-* *memory management and garbage collection*
+* memory management + garbage collection
 
 The mini-LISP interpreter implements a larger LISP additionally containing:
 * `quasiquotation` ?
 
 How to run:
-* installation: *will be documented...*
-* `./generate-readme.sh` to run the compile and run the interpreter on the lines in `example.in` and copy their result into the readme
-* a REPL via `./REPL`
+* installation: need [Docker](https://docs.docker.com/get-docker/) on a linux system
+* run `repl.sh` to build the docker image and run MiniLISP REPL.
+* to check all tests and generate this readme, run `run-tests.sh`
 
 Features and optimisations:
 * head-first evaluation. expressions where head is computed and hence choses which functionto evaluate:
@@ -41,6 +41,7 @@ Features and optimisations:
   hence complex test-cases which would take long to execute are excluded during testing.
 * a small standard library can be found in `standard-library.lisp`
 * improvements from C++: `g++ -O3 ...`
+* *TODO* extend `add_standard_library` to read in scratchpad statements
 
 Here are some examples:
 * :)  `'(a b c) => (a b c)`
@@ -107,6 +108,7 @@ Here are some examples:
 * :)  `( (lambda (f x z) (f f x)) '(lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f f (decr n)))))) '3  '#ignore-embed-eval#) => 6`
 * :)  `test-var => test-value`
 * :)  `U-comb => (lambda (f x) (f f x))`
+* :)  `(define a 'b (define s (car '(1 2 3)) (list a s) ) ) => (b 1)`
 * :)  `(null 'a) => ()`
 * :)  `(null '()) => t`
 * :)  `'#ignore-embed-eval-following# => #ignore-embed-eval-following#`
@@ -228,6 +230,7 @@ Here are some examples:
 * SKIP  ` (eval '( (lambda (f x z) (f f x)) '(lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f f (decr n)))))) '3  '#ignore-embed-eval#) (environment)) => 6, due to #ignore-embed-eval#`
 * :)  ` (eval 'test-var (environment)) => test-value`
 * :)  ` (eval 'U-comb (environment)) => (lambda (f x) (f f x))`
+* :)  ` (eval '(define a 'b (define s (car '(1 2 3)) (list a s) ) ) (environment)) => (b 1)`
 * :)  ` (eval '(null 'a) (environment)) => ()`
 * :)  ` (eval '(null '()) (environment)) => t`
 * *+++ All tests passed! +++*`

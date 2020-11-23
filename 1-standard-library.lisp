@@ -70,6 +70,7 @@
                 ((eq hd 'cond) \
                   (ifelse (eval (caar tl) env) (eval (cadar tl) env) \
                   (eval (cons 'cond (cdr tl)) env))) \
+                ((eq hd 'define) (eval (substitute (car tl) (cadr tl) (caddr tl)) env)) \
                 ((eq hd '+) \
                   (ifelse (null tl) '0 (+ (eval (car tl) env) \
                   (eval (cons '+ (cdr tl)) env)))) \

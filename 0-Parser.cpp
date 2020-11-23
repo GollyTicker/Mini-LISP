@@ -3,7 +3,7 @@
 
 #include<set>
 
-#include "AST.cpp"
+#include "0-AST.cpp"
 
 // utilities for parsing. defined at bottom
 int character(char c, string s, int i);
