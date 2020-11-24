@@ -1,14 +1,14 @@
-# LISP
+# Mini-LISP
 
-A mini-LISP interpreter in C++ which itself implements a larger LISP.
-Inspired by [The Roots of LISP](http://languagelog.ldc.upenn.edu/myl/llog/jmc.pdf).
+A mini-LISP interpreter in C++ with a small standard library and an `eval` function which interprets same LISP expressions. [Try it online here!](https//not-implemented-yet.sorry)
 
-*TODO*: make note on the fact, that the implementation is not exactly like gnu clisp etc. implementations. and the reason and purpose of this impl.
+The purpose of this project was to develop a better understanding of some key features of LISP (e.g. [homoiconicity](https://en.wikipedia.org/wiki/Homoiconicity)) by writing an interpreter for it - and because it's fun to do so! I chose C++ as language to improve - and because chosing simple constructs from C++ enables a better understanding than using higher level abstractions (e.g. Python objects). Writing an interpreter also allows one to experiment with variations which are not implemented in standard implementations of LISP. The interpreter is slightly different than comparable full implementations of LISP such as GNU clisp and these are documented below. During implementation I was mostly going along the lines of [The Roots of LISP](http://languagelog.ldc.upenn.edu/myl/llog/jmc.pdf).
 
-The C++ implements a mini-LISP interpreter consisting of:
+### mini-LISP interpreter in C++
+The interpreter comes with the following primitives:
 * `quote`
 * `atom`
-* `eq` (atom equality and empty list equality)
+* `eq`
 * `car`
 * `cdr`
 * `cons` (and it's abbreviation `list`)
@@ -17,33 +17,39 @@ The C++ implements a mini-LISP interpreter consisting of:
 * variable binding with `define` + global definitions with `define!`
 * `environment` (returns all global global definitions)
 * `+` and `decr` (convenience for example numerical functions)
-* memory management + garbage collection
+* `quasiquotation` (?)
 
-The mini-LISP interpreter implements a larger LISP additionally containing:
-* `quasiquotation` ?
+### TODOs
+* package into REST api
+* serve via Vue
+* run in cloud via Digital Ocean
+* give examples of code and give small cheat sheet for what is implemented
+* add *homoiconicity* example
 
-How to run:
-* installation: need [Docker](https://docs.docker.com/get-docker/) on a linux system
-* run `repl.sh` to build the docker image and run MiniLISP REPL.
-* to check all tests and generate this readme, run `run-tests.sh`
-
-Features and optimisations:
+### Features
+* a function `eval` written in MiniLISP which emulates MiniLISP itself
+* *memory management* of LISP expressions via C++ `shared_ptr` in `0-AST.cpp`
+* *garbage collection* of memoised but unreferenced expressions
+* *memoisation* of the evaluated from of expressions via `weak_ptr` in `0-Eval.cpp`. Memoisation is possibe, since all lisp ASTs are mere expressions which don't change state. (`define!` is only meant for top-level bindings)
+  * in long running operations 13% to 18% of all expressions were observed to be looked up instead of recomputed
+  * this optimisation isn't implemented in the interpreter `eval` written in MiniLISP itself, due to the lack of efficient map datastructures. These expressions run long and are excluded from tests.
 * head-first evaluation. expressions where head is computed and hence choses which functionto evaluate:
   * for example `((cond ('() '+) ('t 'car)) '(a b c))` can be run with our interpreter and evaluates to `a`
   * whereas online interpreters such as [this one](https://rextester.com/l/common_lisp_online_compiler) (GNU clisp) cannot evaluate such expressions
-* memory management via smart pointers (`shared_ptr` and `weak_ptr`) in `AST.cpp`
 * lazy variable bindings in `lambda`s. this allows us to define and express recursive functions via logic-combinators. This isn't possible with the default GNU clisp.
   * for example, we can run `(lambda (f x) (f f x)) '(lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f f (decr n)))))) '3)` to compute the sum of the first three integers
   * We cannot use a definition in this form in GNU clisp due to it's head being itself a function.
-* since expressions are purely functional (`define!` is only to be used for top-level definitions), we can *memoise* results of evaluations in `Eval.cpp`
-  * in complex and long running operations, 13% to 18% of all expressions can be simply looked up.
-  * this optimisation isn't implemented in the interpreter written in Lisp itself,
-  hence complex test-cases which would take long to execute are excluded during testing.
 * a small standard library can be found in `standard-library.lisp`
 * improvements from C++: `g++ -O3 ...`
 * *TODO* extend `add_standard_library` to read in scratchpad statements
 
-Here are some examples:
+### Installation & Usage
+1. Please ensure you have a linux sysem with [Docker](https://docs.docker.com/get-docker/) installed
+2. Clone this repository
+3. Run ```./repl.sh``` to build the docker image and run the MiniLISP REPL
+4. To check that all tests pass: `run-tests.sh`
+
+### Example expressions
 * :)  `'(a b c) => (a b c)`
 * :)  `'(a ) => (a)`
 * :)  `'(a (b c)) => (a (b c))`
