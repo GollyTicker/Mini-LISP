@@ -1,11 +1,13 @@
+-- This file is data containing the lines which should be executed by LISP to test the interpreter.
+-- they match with corresponding lines in examples.out
+
 -- parsing
 '(a b c)
 '(a )
 '(a (b c))
 '(a(b c))
 '((b c)a)
-'((b \
-  c) a)
+'((b c) a)
 
 -- quote
 (quote (a b c))

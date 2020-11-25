@@ -1,2 +1,2 @@
 #/bin/bash
-g++ -O3 0-MiniLISP.cpp -o MiniLISP
+g++ -std=c++17 -O3 0-MiniLISP.cpp -o MiniLISP

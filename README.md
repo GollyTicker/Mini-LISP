@@ -2,7 +2,7 @@
 
 A mini-LISP interpreter in C++ with a small standard library and an `eval` function which interprets same LISP expressions. [Try it online here!](https//not-implemented-yet.sorry)
 
-The purpose of this project was to develop a better understanding of some key features of LISP (e.g. [homoiconicity](https://en.wikipedia.org/wiki/Homoiconicity)) by writing an interpreter for it - and because it's fun to do so! I chose C++ as language to improve - and because chosing simple constructs from C++ enables a better understanding than using higher level abstractions (e.g. Python objects). Writing an interpreter also allows one to experiment with variations which are not implemented in standard implementations of LISP. The interpreter is slightly different than comparable full implementations of LISP such as GNU clisp and these are documented below. During implementation I was mostly going along the lines of [The Roots of LISP](http://languagelog.ldc.upenn.edu/myl/llog/jmc.pdf).
+The purpose of this project was to develop a better understanding of some key features of LISP (e.g. [homoiconicity](https://en.wikipedia.org/wiki/Homoiconicity)) by writing an interpreter for it - and because it's fun to do so! I choose C++ since I wanted to improve my C++ skills - and because chosing simple constructs from C++ enables a better understanding than using higher level abstractions (e.g. Python objects). Writing an interpreter also allows one to experiment with variations which are not implemented in standard implementations of LISP. The interpreter is slightly different than comparable full implementations of LISP such as GNU clisp and these are documented below. During implementation I was mostly going along the lines of [The Roots of LISP](http://languagelog.ldc.upenn.edu/myl/llog/jmc.pdf).
 
 ### mini-LISP interpreter in C++
 The interpreter comes with the following primitives:
@@ -27,21 +27,19 @@ The interpreter comes with the following primitives:
 * add *homoiconicity* example
 
 ### Features
-* a function `eval` written in MiniLISP which emulates MiniLISP itself
+* a function `eval` written in MiniLISP which can emulates MiniLISP itself (in `standard_library.lisp`)
 * *memory management* of LISP expressions via C++ `shared_ptr` in `0-AST.cpp`
 * *garbage collection* of memoised but unreferenced expressions
 * *memoisation* of the evaluated from of expressions via `weak_ptr` in `0-Eval.cpp`. Memoisation is possibe, since all lisp ASTs are mere expressions which don't change state. (`define!` is only meant for top-level bindings)
   * in long running operations 13% to 18% of all expressions were observed to be looked up instead of recomputed
   * this optimisation isn't implemented in the interpreter `eval` written in MiniLISP itself, due to the lack of efficient map datastructures. These expressions run long and are excluded from tests.
-* head-first evaluation. expressions where head is computed and hence choses which functionto evaluate:
-  * for example `((cond ('() '+) ('t 'car)) '(a b c))` can be run with our interpreter and evaluates to `a`
-  * whereas online interpreters such as [this one](https://rextester.com/l/common_lisp_online_compiler) (GNU clisp) cannot evaluate such expressions
-* lazy variable bindings in `lambda`s. this allows us to define and express recursive functions via logic-combinators. This isn't possible with the default GNU clisp.
-  * for example, we can run `(lambda (f x) (f f x)) '(lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f f (decr n)))))) '3)` to compute the sum of the first three integers
-  * We cannot use a definition in this form in GNU clisp due to it's head being itself a function.
-* a small standard library can be found in `standard-library.lisp`
-* improvements from C++: `g++ -O3 ...`
-* *TODO* extend `add_standard_library` to read in scratchpad statements
+* *head-first evaluation*: in expressions where the head itself is a complex expression, the head is evaluated first until it can be reduced to a primitive or lambda function. This enables us to write complex functions where the head can be computed.
+  * for example `((cond ('() '+) ('t 'car)) '(1 2 3))` can be run with our interpreter and evaluates to `1` as it choses to run the head `car`
+  * other online interpreters such as [this one](https://rextester.com/l/common_lisp_online_compiler) (GNU clisp) cannot evaluate such expressions, as the head always has to be a lambda function or a defined function.
+* *lazy variable bindings* in lambdas enabling us to define recursive functions using logic-combinators
+  * for example, we can run `(lambda (f x) (f f x)) '(lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f f (decr n)))))) '3)` to compute the sum of the first `n=3` integers. it corresponds to the lambda expression `(λf. λx. f f x) (λf. λn. if n == 0 then 0 else n + (f f (n-1)))`
+  * Such definitions are not possible in GNU clisp due to it's head being itself a function
+* a small *standard library* can be found in `standard-library.lisp`
 
 ### Installation & Usage
 1. Please ensure you have a linux sysem with [Docker](https://docs.docker.com/get-docker/) installed
@@ -55,7 +53,7 @@ The interpreter comes with the following primitives:
 * :)  `'(a (b c)) => (a (b c))`
 * :)  `'(a(b c)) => (a (b c))`
 * :)  `'((b c)a) => ((b c) a)`
-* :)  `'((b   c) a) => ((b c) a)`
+* :)  `'((b c) a) => ((b c) a)`
 * :)  `(quote (a b c)) => (a b c)`
 * :)  `'sdf => sdf`
 * :)  `'(a b c) => (a b c)`
@@ -177,7 +175,7 @@ The interpreter comes with the following primitives:
 * :)  ` (eval ''(a (b c)) (environment)) => (a (b c))`
 * :)  ` (eval ''(a(b c)) (environment)) => (a (b c))`
 * :)  ` (eval ''((b c)a) (environment)) => ((b c) a)`
-* :)  ` (eval ''((b   c) a) (environment)) => ((b c) a)`
+* :)  ` (eval ''((b c) a) (environment)) => ((b c) a)`
 * :)  ` (eval '(quote (a b c)) (environment)) => (a b c)`
 * :)  ` (eval ''sdf (environment)) => sdf`
 * :)  ` (eval ''(a b c) (environment)) => (a b c)`
@@ -209,34 +207,3 @@ The interpreter comes with the following primitives:
 * :)  ` (eval '(cons 'a '(b c)) (environment)) => (a b c)`
 * :)  ` (eval '(cons 'a '()) (environment)) => (a)`
 * :)  ` (eval '(cons '(a b) '(d e)) (environment)) => ((a b) d e)`
-* :)  ` (eval '(cond ('t 'a)) (environment)) => a`
-* :)  ` (eval '(cond ('() 'b) ('t 'a)) (environment)) => a`
-* :)  ` (eval '(cond ('(s) 'a) ('() 'b) ('t 'c)) (environment)) => c`
-* :)  ` (eval '(cond ((eq 'a 'b) 'a) ('t 'b)) (environment)) => b`
-* :)  ` (eval '(cond ((eq 'a 'a) 'a) ('t 'b)) (environment)) => a`
-* :)  ` (eval '((cond ('() '+) ('t 'car)) '(a b c)) (environment)) => a`
-* :)  ` (eval '((cond ('() '+) ('t 'quote)) (a b c)) (environment)) => (a b c)`
-* :)  ` (eval '(list) (environment)) => ()`
-* :)  ` (eval '(list 'a) (environment)) => (a)`
-* :)  ` (eval '(list 'a 'b) (environment)) => (a b)`
-* :)  ` (eval '((lambda () 'a)) (environment)) => a`
-* :)  ` (eval '((lambda () (cons '1 '(c d)))) (environment)) => (1 c d)`
-* :)  ` (eval '((lambda (a b) (cons a b)) '1 '(c d)) (environment)) => (1 c d)`
-* :)  ` (eval '((lambda (a) (cons a '(b c))) '1) (environment)) => (1 b c)`
-* :)  ` (eval '((lambda (a) (cons a '(a c))) '1) (environment)) => (1 a c)`
-* :)  ` (eval '((lambda (a) 'a) '1) (environment)) => a`
-* :)  ` (eval '((lambda (a b) (+ (car a) b)) '(1 x) '2) (environment)) => 3`
-* :)  ` (eval '((lambda (a b) a) 'a lambda-is-lazy) (environment)) => a`
-* :)  ` (eval '((lambda (a b) b) lambda-is-lazy 'a) (environment)) => a`
-* :)  ` (eval '((lambda (x) (cons x (cons x '()))) 'a) (environment)) => (a a)`
-* :)  ` (eval '((lambda (f x) (cons f (cons f (cons x '())))) 'f 'x) (environment)) => (f f x)`
-* :)  ` (eval '((lambda (f xs) (cons f (cons f xs))) 'f '(arg1 arg2)) (environment)) => (f f arg1 arg2)`
-* SKIP  ` (eval '((lambda (a b ig) (cons a (cons b ((lambda (b c) (cons b (cons c '()))) '3 '4))) ) '1 '2 '#ignore-embed-eval#) (environment)) => (1 2 3 4), due to #ignore-embed-eval#`
-* SKIP  ` (eval '((lambda (f n ig) (cond ((eq n '0) '0) ('t (+ n (f (decr n) ))))) '+ '2 '#ignore-embed-eval#) (environment)) => 3, due to #ignore-embed-eval#`
-* SKIP  ` (eval '( (lambda (f x z) (f f x)) '(lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f f (decr n)))))) '3  '#ignore-embed-eval#) (environment)) => 6, due to #ignore-embed-eval#`
-* :)  ` (eval 'test-var (environment)) => test-value`
-* :)  ` (eval 'U-comb (environment)) => (lambda (f x) (f f x))`
-* :)  ` (eval '(define a 'b (define s (car '(1 2 3)) (list a s) ) ) (environment)) => (b 1)`
-* :)  ` (eval '(null 'a) (environment)) => ()`
-* :)  ` (eval '(null '()) (environment)) => t`
-* *+++ All tests passed! +++*`

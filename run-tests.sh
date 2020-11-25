@@ -1,4 +1,4 @@
-docker rm -f minilisp-tester
+docker rm -f minilisp-tester > /dev/null 2> /dev/null
 
 docker build -t minilisp:v1 . \
   && docker run --name minilisp-tester -it minilisp:v1 bash ./3-generate-readme.sh \

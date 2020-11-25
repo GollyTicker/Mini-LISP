@@ -1,5 +1,4 @@
 #include<set>
-#include<exception>
 #include<memory>
 
 pAST lisp_true = (pAST) at("t");
