@@ -37,7 +37,7 @@ int main(int k, char ** args) {
       /* 1. parse input into abstract semantic tree: AST*/
       pAST expr = parse_full(s);
       if (!expr) {
-        cout << "Could not parse: " << s << endl;
+        // parse error
       }
       else {
         /* 2. evaluate it. */
