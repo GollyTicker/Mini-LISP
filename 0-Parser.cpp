@@ -17,6 +17,10 @@ comment = ";" { char x where x != '\n' }*
 ws = " " | "\n"
 */
 
+/* TODO: perhaps make contextes mutable and passed by reference?
+then we can always use the same context.
+TODO: perhaps pass the input stirng as reference instead of directly? */
+
 #include<set>
 #include<vector>
 #include <variant>
@@ -94,36 +98,28 @@ optional<Result<T> > get_opt(Parsed<T> p) {
   return holds_alternative<Result<T> >(p) ? get<Result<T> >(p) : optional<Result<T> >();
 }
 
-template<typename T>
-using Parser = Parsed<T> (*)(Ctx);
-
-// sequence two parsers consecutively
-/* PROBLEM: shared ptr does't distribute well into pair...*/
-template<typename T1, typename T2>
-Parser<T2> sequence2_right(Parser<T1> p1, Parser<T2> p2) {
-  Parsed<T2> (*func)(Ctx) = [&p1, &p2](Ctx c) -> Parsed<T2> {
-    Parsed<T1> pr1 = p1(c);
-    optional<Result<T1> > r1 = get_opt<T1>(pr1);
-    if (r1) {
-      return p2(r1.value().c);
-    }
-    else {
-      return (Parsed<T2>) get<ParseError>(pr1);
-    }
-  };
-
-  return func;
+template<typename T, typename S>
+Parsed<T> make_base_result(Parsed<S> p) {
+  optional<Result<S> > r = get_opt(p);
+  if (r) {
+    Result<T> converted = Result<T>(r.value().val,r.value().c);
+    return converted;
+  }
+  else return get<ParseError>(p);
 }
 
 // utilities for parsing. defined at bottom
 int character(char c, string s, int i);
 int whitespace(string s, int i);
 char lookahead(string s, int i);
-Parsed<string> whitespaceN(Ctx c);
+
+Parsed<string> character(char chr, Ctx c);
+Ctx whitespace(Ctx c);
 
 // parsing functions for each expression.
 pair<pAST,int> lisp_expr(string s, int i);
 pair<pList,int> list_expr(string s, int i);
+Parsed<List> list_expr(Ctx c);
 Parsed<Atom> atom_expr(Ctx c);
 
 #define NO_RESULT(T) make_pair((T)NULL,-1)
@@ -147,6 +143,24 @@ pAST parse_full(string s) {
 
 /* parse a lisp_expression starting at index i1.
 returns NULL is it fails*/
+Parsed<AST> lisp_expr(Ctx c1) {
+  if (debug) cout << "lisp_expr("<<c1.i()<<")" << endl;
+  Ctx c2 = whitespace(c1);
+  if (c2.notEOF()) {
+    /* choose option based on lookahead */
+    if (c2.get() == '\'') { /* special syntax for quote */
+      return ParseError("TODO",c2);
+    }
+    else if (c2.get() == '(') {
+      return ParseError("TODO",c2);
+    }
+    else {
+      return make_base_result<AST>(atom_expr(c2));
+    }
+  }
+  else return ParseError("Expecting EXPR, but found ",c2);
+}
+
 pair<pAST,int> lisp_expr(string s, int i1) {
   if (debug) cout << "lisp_expr("<<i1<<")" << endl;
   int i2 = whitespace(s,i1);
@@ -161,7 +175,11 @@ pair<pAST,int> lisp_expr(string s, int i1) {
           break;
         }
       case '(' : { /* list */
-          return list_expr(s,i2);
+          Ctx c = Ctx(s);
+          c += i2;
+          Parsed<List> p = list_expr(c);
+          optional<Result<List> > r = get_opt<List>(p);
+          return r ? make_pair(r.value().val,r.value().c.i()) : NO_RESULT(pList);
           break;
         }
       default  : { /* atom */
@@ -198,98 +216,69 @@ Parsed<Atom> atom_expr(Ctx c) {
   return Result(at(atomname),c);
 }
 
-Parsed<List> list_rec_exprN(Ctx c) {
+Parsed<List> list_rec_expr(Ctx c) {
   if (debug) cout << "list_rec_expr("<<c.i()<<")" << endl;
   if (c.notEOF()) {
     char lookahead = c.get();
     if (lookahead == ')') { /* nl: end of list */
-      c++;
-      return Result(nl,c);
-    }
-    else {
-      pAST elem;
-      pList tail;
-      int iWS,iRest,iEnd;
-      tie(elem,iWS) = lisp_expr(c.s,c.i());
-
-      Ctx c2 = Ctx(c.s);
-      c2+=iWS;
-
-      Parsed<List> sq = sequence2_right(whitespaceN,list_rec_exprN)(c2);
-      // cannot convert to pointer functions
-      // due to the way, lambda's are implemented
-      // mabdas can only be static...
-      // what now? ...
-      // => to manual checking for indices and go on.
-      // TODO: continue here
-      return ParseError("TODO",c);
-    }
-  }
-  else return ParseError("Expecting EXPR or end of list, but found", c);
-}
-
-pair<pList,int> list_rec_expr(string s, int i) {
-  if (debug) cout << "list_rec_expr("<<i<<")" << endl;
-  if (i < s.length()) {
-    char la = lookahead(s,i);
-    if (la == ')') { /* nl: end of list */
-      return make_pair(nl,i+1);
+      c++; return Result(nl,c);
     }
     else { /* cons: recursive case of list */
       pAST elem;
-      pList tail;
-      int iWS,iRest,iEnd;
-      tie(elem,iWS) = lisp_expr(s,i);
-      iRest = whitespace(s,iWS);
-      tie(tail,iEnd) = list_rec_expr(s,iRest);
-      return make_pair(cons(elem,tail),iEnd);
+      int iWS;
+      tie(elem,iWS) = lisp_expr(c.s,c.i());
+
+      Ctx prep_ws = Ctx(c.s);
+      prep_ws += iWS;
+      Ctx iRest = whitespace(prep_ws);
+
+      Parsed<List> prec = list_rec_expr(iRest);
+      optional<Result<List> > rrec = get_opt(prec);
+      if (rrec) {
+        pList tail = rrec.value().val;
+        return Result(cons(elem,tail),rrec.value().c);
+      }
+      else {
+        return get<ParseError>(prec);
+      }
     }
   }
-  else {
-    cout << "Expecting EXPR or end of list, but found end of stream at " << i << endl;
-    return NO_RESULT(pList);
-  }
+  else return ParseError("Expected EXPR or end of list, but got ",c);
 }
 
-/*
-Pared<List> list_expr(Ctx c) {
-  if (debug) cout << "list_expr("<<c.i()<<")" << endl;
-  return NULL;
-}*/
-
-pair<pList,int> list_expr(string s, int i1) {
-  if (debug) cout << "list_expr("<<i1<<")" << endl;
-  int iElem = character('(',s,i1);
-  if (iElem < s.length() && iElem != -1) {
-    int iRest = whitespace(s,iElem);
-    return list_rec_expr(s,iRest);
+Parsed<List> list_expr(Ctx c1) {
+  if (debug) cout << "list_expr("<<c1.i()<<")" << endl;
+  Parsed<string> pc = character('(',c1);
+  optional<Result<string> > rc = get_opt(pc);
+  if (!rc) return get<ParseError>(pc);
+  Ctx c2 = rc.value().c;
+  if (c2.notEOF()) {
+    Ctx crest = whitespace(c2);
+    return list_rec_expr(crest);
   }
   else {
-    cout << "Expecting EXPR or end of list, but found end of stream at" << iElem << endl;
-    return NO_RESULT(pList);
+    return ParseError("Expecting EXPR or end of list, but got ",c2);
   }
 }
 
 /* UTILITIES */
+Ctx whitespace(Ctx c) {
+  if (debug) cout << "whitespace("<<c.i()<<")"<< endl;
+  while(c.notEOF() && (c.get() == ' ' || c.get() == '\n') ) c++;
+  return c;
+}
 
-// parses single character c and returns new index or fails with -1
-Parsed<string> curlyBraceOpen(Ctx c) {
-  if (debug) cout << "curlyBraceOpen("<<c.i()<<")"<< endl;
-  if (c.notEOF() && c.get() == '(') {
+Parsed<string> character(char chr, Ctx c) {
+  if (debug) cout << "character("<<chr<<","<<c.i()<<")"<< endl;
+  if (c.notEOF() && c.get() == chr) {
     c++;
-    return make_string_result("(",c);
+    return make_string_result(string(1,chr),c);
   }
   else {
     ostringstream ss;
-    ss << "Expected '(' but got";
-    return ParseError(ss.str(), c);
+    ss << "Expected " << string(1,chr) << ", but got ";
+    return ParseError(ss.str(),c);
   }
-}
-
-Parsed<string> whitespaceN(Ctx c) {
-  if (debug) cout << "whitespace("<<c.i()<<")"<< endl;
-  while(c.notEOF() && (c.get() == ' ' || c.get() == '\n') ) c++;
-  return make_string_result("<irrelevant>",c);
 }
 
 int character(char c, string s, int i) {
