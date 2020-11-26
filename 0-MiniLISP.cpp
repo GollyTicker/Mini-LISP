@@ -22,38 +22,35 @@ int main(int k, char ** args) {
   if (repl) cout << "MiniLISP REPL. type quit or exit to terminate repl." << endl;
 
   while (true) {
+    /* 1. read input*/
     if (repl) {
       cout << "> ";
       getline(cin >> ws,s);
     }
     else {
-      s = string(args[2]); // TODO: add try catches for REPL workflow
+      s = string(args[2]);
     }
 
     if (repl && (s.compare("quit") == 0 || s.compare("exit") == 0)) {
       break;
     }
     else {
-      /* 1. parse input into abstract semantic tree: AST*/
-      pAST expr = parse_full(s);
-      if (!expr) {
-        // parse error
-      }
-      else {
-        /* 2. evaluate it. */
-        Env backup = Env(e);
-        pAST result = eval(expr, e);
+      /* 2. evaluate it. */
+      Env backup = Env(e);
+      try {
+        vector<pAST> results = interpret_file_string(s, e);
         // changes in environment are recorded in e.
-        if (!result) {
-          cout << "Could not evaluate: " << expr->lisp_string() << endl;
-          // revert changes done by expression
-          e = backup;
+        /* 3. print evaluated form. */
+        for (pAST past : results) {
+          cout << past->lisp_string() << endl;
         }
-        else {
-          /* 3. print evaluated form. */
-          cout << result->lisp_string() << endl;
-          if (single_expr) break;
-        }
+        if (single_expr) break;
+      }
+      catch (exception& excp) {
+        cout << excp.what() << endl;
+        cout << "Could not evaluate. " << endl;
+        // revert changes done by expression
+        e=backup;
       }
     }
   }

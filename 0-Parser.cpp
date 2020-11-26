@@ -5,7 +5,7 @@
 Parsing rules:
 
 file = file-no-comments where file-no-comments has all single-line {comment} removed
-file-no-comment = "" | expr ws expr
+file-no-comment = "" | expr ws file-no-comment
 
 expr = atom | list | quote expr
 quote = "'"
@@ -22,6 +22,7 @@ then we can always use the same context.
 TODO: perhaps pass the input string as reference instead of directly? */
 
 #include<set>
+#include<vector>
 #include<variant>
 #include<sstream>
 
@@ -125,7 +126,7 @@ pAST parse_full(string s) {
     Result<AST> res = r.value();
     Ctx c2 = whitespace(res.c);
     if (c2.notEOF()) {
-      ParseError e = ParseError("Finished parsing EXPR, but stream continues with ",c2);
+      ParseError e = ParseError("Finished parsing EXPR, but stream continues with",c2);
       cout << "Error: " << e.msg << endl;
       return NULL;
     }
@@ -138,6 +139,35 @@ pAST parse_full(string s) {
     cout << "Error: " << err.msg << endl;
     return NULL;
   }
+}
+
+/* ignores current position in Ctx */
+Ctx remove_single_line_comments(Ctx c) {
+  ostringstream ss;
+  for (;c.notEOF(); c++) {
+    if (c.get() == ';') { // comment start
+      while(c.notEOF() && c.get() != '\n') c++;
+    }
+    else ss << string(1,c.get());
+  }
+  return Ctx(ss.str());
+}
+
+Parsed<Codefile> code_file(Ctx c1) {
+  if (debug) cout << "code_file("<<c1.i()<<")"<< endl;
+  /* preprocess code_file to remove single line comments. */
+  Ctx c2 = remove_single_line_comments(c1);
+  vector<pAST> stmts(0,pAST(NULL));
+  c2 = whitespace(c2);
+  while (c2.notEOF()) {
+    Parsed<AST> pexpr = lisp_expr(c2);
+    optional<Result<AST> > rexpr = get_opt(pexpr);
+    if (!rexpr) return get<ParseError>(pexpr);
+    stmts.push_back(rexpr.value().val);
+    c2 = rexpr.value().c;
+    c2 = whitespace(c2);
+  }
+  return Result(codefile(vector<pAST> (stmts)),c2);
 }
 
 /* parse a lisp_expression starting at index i1.
@@ -162,10 +192,10 @@ Parsed<AST> lisp_expr(Ctx c1) {
       return result_typed<AST>(atom_expr(c2));
     }
   }
-  else return ParseError("Expecting EXPR, but found ",c2);
+  else return ParseError("Expecting EXPR, but got",c2);
 }
 
-set<char> atom_breaks{' ', ')', '(', '\''};
+set<char> atom_breaks{' ', ')', '(', '\n', '\''};
 
 Parsed<Atom> atom_expr(Ctx c) {
   if (debug) cout << "atom_expr("<<c.i()<<")" << endl;
@@ -173,7 +203,7 @@ Parsed<Atom> atom_expr(Ctx c) {
   /*read atom name until a character in atom_breaks is encountered */
   while (c.notEOF()) {
     if (c.i() == i0 && atom_breaks.count(c.get())>=1) {
-      return ParseError("Expecting ATOM, but found ",c);
+      return ParseError("Expecting ATOM, but got",c);
     }
     else if (atom_breaks.count(c.get())>=1) { break; }
     else c++;
@@ -207,7 +237,7 @@ Parsed<List> list_rec_expr(Ctx c) {
       return Result(cons(relem.value().val,tail),rrec.value().c);
     }
   }
-  else return ParseError("Expected EXPR or end of list, but got ",c);
+  else return ParseError("Expected EXPR or end of list, but got",c);
 }
 
 Parsed<List> list_expr(Ctx c1) {
@@ -221,7 +251,7 @@ Parsed<List> list_expr(Ctx c1) {
     return list_rec_expr(crest);
   }
   else {
-    return ParseError("Expecting EXPR or end of list, but got ",c2);
+    return ParseError("Expecting EXPR or end of list, but got",c2);
   }
 }
 
@@ -240,7 +270,7 @@ Parsed<string> character(char chr, Ctx c) {
   }
   else {
     ostringstream ss;
-    ss << "Expected " << string(1,chr) << ", but got ";
+    ss << "Expected " << string(1,chr) << ", but got";
     return ParseError(ss.str(),c);
   }
 }

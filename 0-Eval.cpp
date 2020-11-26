@@ -1,4 +1,5 @@
 #include<map>
+#include <exception>
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -47,8 +48,7 @@ pAST eval(pAST expr, Env& env) {
     pAtom a = dynamic_pointer_cast<Atom>(expr);
     if (env.count(a->str) >= 1) result = env[a->str];
     else {
-      cout << "Cannot eval atom " << a->lisp_string() << ". Missing definition in env." << endl;
-      result = NULL;
+      throw logic_error("Cannot eval atom " + a->lisp_string() + ". Missing definition in env.");
     }
   }
   else { // expr is list
@@ -69,8 +69,7 @@ pAST eval(pAST expr, Env& env) {
           result = eval(cons(env[atom->str],xs->tail),env);
         }
         else {
-          cout << "Cannot eval undefined atom in " << xs->lisp_string() << endl;
-          result = NULL;
+          throw logic_error("Cannot eval undefined atom in " + xs->lisp_string());
         }
       }
       else {
@@ -93,8 +92,7 @@ pAST eval(pAST expr, Env& env) {
       }
     }
     else { // empty list
-      cout << "Cannot eval empty list " << xs->lisp_string() << "." << endl;
-      result = NULL;
+      throw logic_error("Cannot eval empty list " + xs->lisp_string());
     }
   }
 
@@ -102,20 +100,32 @@ pAST eval(pAST expr, Env& env) {
   if (result) {
     weak_ptr<AST> wres = weak_ptr<AST>(result);
     eval_memoised.insert({w, result});
+    return eval_memoised[w];
   }
-  else eval_memoised.insert({w, pAST(NULL)});
-
-  return eval_memoised[w];
+  return pAST(NULL); // this shouldnt happen
 }
 
-string remove_backslash_newlines(string& s) {
-  string r = "";
-  for (int i=0;i<s.length()-1;i++){
-    if (s[i]=='\\' && s[i+1]=='\n') i+=1; // skip newline
-    else r += string{s[i]};
+/* evaluates each expression in the file and collects the output into the result string. */
+vector<pAST> eval_file(pCodefile cf, Env& env) {
+  vector<pAST> results(0,pAST(NULL));
+  for(auto expr : cf->statements) {
+    pAST res = eval(expr, env);
+    results.push_back(res);
   }
-  // ignore newline at end
-  return r;
+  return results;
+}
+
+vector<pAST> interpret_file_string(string input, Env& env) {
+  // read std definitions into environment
+  Parsed<Codefile> pcf = code_file(input);
+  optional<Result<Codefile> > rcf = get_opt(pcf);
+  if (rcf) {
+    pCodefile cf = rcf.value().val;
+    return eval_file(cf, env);
+  }
+  else {
+    throw logic_error("Error: " + get<ParseError>(pcf).msg);
+  }
 }
 
 /* standard library definitions */
@@ -125,19 +135,12 @@ void add_standard_library(Env& env) {
   string std_defs;
   if (file.is_open()) {
     std_defs = string((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
-    std_defs = remove_backslash_newlines(std_defs);
     file.close();
   }
   else {
-    cout << "Error: Couldn't open std library: " << std_lib << endl;
+    throw logic_error("Error: Couldn't open std library: " + std_lib);
   }
-
-  // read std definitions into environment
-  stringstream std_lines(std_defs);
-  string expr;
-  while (getline(std_lines, expr)) {
-    eval(parse_full(expr),env);
-  }
+  interpret_file_string(std_defs, env);
 }
 
 Env init_interpreter() {

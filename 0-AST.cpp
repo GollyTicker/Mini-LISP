@@ -3,6 +3,8 @@
 /* ABSTRACT SEMANTIC TREE */
 
 /*
+Codefile = vector<AST>
+
 AST = atom
   | list
 
@@ -62,13 +64,29 @@ string List::lisp_string() {
   }
 }
 
+struct Codefile {
+  vector<shared_ptr<AST> > statements;
+  Codefile(vector<shared_ptr<AST> > stmts) {
+    statements=stmts;
+  }
+  string lisp_string() {
+    ostringstream ss;
+    for (shared_ptr<AST> past : statements) {
+      ss << past->lisp_string() << endl;
+    }
+    return ss.str();
+  }
+};
+
 // shared_ptr for memory management.
 // shared_ptr implements automatic reference counting and deletion when it reaches 0.
 typedef shared_ptr<AST> pAST;
 typedef shared_ptr<Atom> pAtom;
 typedef shared_ptr<List> pList;
+typedef shared_ptr<Codefile> pCodefile;
 
 // convinience constructors
 pList nl = make_shared<List>();
 pList cons(pAST head, pList tail) { return make_shared<List>(head, tail); }
 pAtom at(string s) { return make_shared<Atom>(s); }
+pCodefile codefile(vector<pAST> stmts) { return make_shared<Codefile>(stmts); }

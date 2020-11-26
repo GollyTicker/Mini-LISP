@@ -10,8 +10,7 @@ map<string,evalProc*> predefs;
 quote and stop substitution. */
 pAST prim_quote(pList expr, Env& env) {
   if (!expr->head) {
-    cout << "Error: expecting 1 argument to quote but found " << expr->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Error: expecting 1 argument to quote but found " + expr->lisp_string());
   }
   else return expr->head;
 }
@@ -20,16 +19,14 @@ pAST substitute(pAtom var, pAST value, pAST body);
 
 pAST prim_atom(pList expr, Env& env) {
   if (!expr->head) {
-    cout << "Error: expecting 1 argument to atom but found " << expr->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Error: expecting 1 argument to atom but found " + expr->lisp_string());
   }
   return eval(expr->head,env)->is_atom() ? lisp_true : lisp_false;
 }
 
 pAST prim_eq(pList expr, Env& env) {
   if (!expr->head || !expr->tail->head) {
-    cout << "Error: expecting 2 arguments to eq but found " << expr->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Error: expecting 2 arguments to eq but found " + expr->lisp_string());
   }
   pAST left = eval(expr->head,env);
   pAST right = eval(expr->tail->head,env);
@@ -45,15 +42,13 @@ pAST prim_eq(pList expr, Env& env) {
 
 pAST prim_cons(pList expr, Env& env) {
   if (!expr->head || !expr->tail->head) {
-    cout << "Error: expecting 2 arguments to cons but found " << expr->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Error: expecting 2 arguments to cons but found " + expr->lisp_string());
   }
   pAST hd = eval(expr->head,env);
   pAST tl = eval(expr->tail->head,env);
   pList tail = dynamic_pointer_cast<List>(tl);
   if (!tail) {
-    cout << "Cannot apply primitive cons on non-list tail " << tl->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Cannot apply primitive cons on non-list tail " + tl->lisp_string());
   }
   return cons(hd,tail);
 }
@@ -74,8 +69,7 @@ bool tryempty(pAST expr) {
 
 pAST prim_cond(pList expr, Env& env) {
   if (!expr->head || tryempty(tryhead(expr)) || tryempty(trytail(tryhead(expr))) ) {
-    cout << "Error: expecting (condition expr) ... to cond but found " << expr->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Error: expecting (condition expr) ... to cond but found " + expr->lisp_string());
   }
   pList path = dynamic_pointer_cast<List>(expr->head);
   pAST condition = eval(path->head,env);
@@ -88,29 +82,25 @@ pAST prim_cond(pList expr, Env& env) {
       return prim_cond(expr->tail,env);
     }
     else {
-      cout << "Cannot apply primitive cons on non-exhaustive branches. " << endl;
-      return NULL;
+      throw logic_error("Cannot apply primitive cons on non-exhaustive branches. ");
     }
   }
 }
 
 pAST prim_cdr(pList expr, Env& env) {
   if (!expr->head) {
-    cout << "Error: expecting 1 argument to cdr but found " << expr->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Error: expecting 1 argument to cdr but found " + expr->lisp_string());
   }
   pAST res = eval(expr->head,env);
   pList xs = dynamic_pointer_cast<List>(res);
   if (!xs) {
-    cout << "Cannot apply primitive cdr on non-list argument " << res->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Cannot apply primitive cdr on non-list argument " + res->lisp_string());
   }
   if (!xs->empty) {
     return xs->tail;
   }
   else {
-    cout << "Cannot apply primitive cdr on empty list." << endl;
-    return NULL;
+    throw logic_error("Cannot apply primitive cdr on empty list.");
   }
 }
 
@@ -127,8 +117,7 @@ pAST prim_list(pList expr, Env& env) { return evalList(expr,env); }
 substitute, we need to ignore the newly defined variable.*/
 pAST prim_define(pList expr, Env& env) {
   if (!expr->head || !expr->tail->head || !expr->tail->tail->head) {
-    cout << "Error: expecting 3 arguments to define but found " << expr->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Error: expecting 3 arguments to define but found " + expr->lisp_string());
   }
   pAtom var = dynamic_pointer_cast<Atom>(expr->head);
   if (var) {
@@ -137,8 +126,7 @@ pAST prim_define(pList expr, Env& env) {
     return eval(new_body,env);
   }
   else {
-    cout << "Cannot apply primitive define to non-atom " << expr->head->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Cannot apply primitive define to non-atom " + expr->head->lisp_string());
   }
 }
 
@@ -146,8 +134,7 @@ pAST prim_define(pList expr, Env& env) {
 substitute, we need to ignore the newly defined variable.*/
 pAST prim_define_global(pList expr, Env& env) {
   if (!expr->head || !expr->tail->head) {
-    cout << "Error: expecting 2 arguments to define! but found " << expr->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Error: expecting 2 arguments to define! but found " + expr->lisp_string());
   }
   pAtom var = dynamic_pointer_cast<Atom>(expr->head);
   if (var) {
@@ -157,28 +144,24 @@ pAST prim_define_global(pList expr, Env& env) {
     return value;
   }
   else {
-    cout << "Cannot apply primitive define! to non-atom " << expr->head->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Cannot apply primitive define! to non-atom " + expr->head->lisp_string());
   }
 }
 
 pAST prim_car(pList expr, Env& env) {
   if (!expr->head) {
-    cout << "Error: expecting 1 argument to car but found " << expr->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Error: expecting 1 argument to car but found " + expr->lisp_string());
   }
   pAST res = eval(expr->head,env);
   pList xs = dynamic_pointer_cast<List>(res);
   if (!xs) {
-    cout << "Cannot apply primitive car on non-list argument " << res->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Cannot apply primitive car on non-list argument " + res->lisp_string());
   }
   if (!xs->empty) {
     return xs->head;
   }
   else {
-    cout << "Cannot apply primitive car on empty list." << endl;
-    return NULL;
+    throw logic_error("Cannot apply primitive car on empty list.");
   }
 }
 
@@ -196,9 +179,7 @@ set<string> collect_atom_strings(pList xs) {
     return rec;
   }
   else {
-    string err = "Encountered mal-formed argument-list for lambda definition " + xs->lisp_string();
-    cout << err << endl;
-    throw logic_error(err);
+    throw logic_error("Encountered mal-formed argument-list for lambda definition " + xs->lisp_string());
   }
 }
 // checks if it's a lambda expression and returns the arguments in argument-list
@@ -261,19 +242,16 @@ pAST prim_lambda_apply(pAST args_ast, pAST body, pList is, Env& env) {
           return prim_lambda_apply(args->tail,new_body,is->tail, env);
         }
         else {
-          cout << "Cannot apply lambda. Missing argument for " << args->lisp_string() << endl;
-          return NULL;
+          throw logic_error("Cannot apply lambda. Missing argument for " + args->lisp_string());
         }
       }
       else {
-        cout << "Error: expecting atom in argument-list for lambda definition, but got" << args->head->lisp_string() << endl;
-        return NULL;
+        throw logic_error("Error: expecting atom in argument-list for lambda definition, but got" + args->head->lisp_string());
       }
     }
   }
   else {
-    cout << "Error: expecting arguments-list for lambda definition, but got " << args_ast->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Error: expecting arguments-list for lambda definition, but got " + args_ast->lisp_string());
   }
 }
 
@@ -290,20 +268,17 @@ pAST prim_environment(pList expr, Env& env) {
 
 pAST prim_decr(pList expr, Env& env) {
   if (!expr->head) {
-    cout << "Error: expecting 1 argument to decr but found " << expr->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Error: expecting 1 argument to decr but found " + expr->lisp_string());
   }
   pAST res = eval(expr->head,env);
   pAtom atom = dynamic_pointer_cast<Atom>(res);
   if (!atom) {
-    cout << "Cannot apply primitive decr on non-atom argument " << res->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Cannot apply primitive decr on non-atom argument " + res->lisp_string());
   }
   int n;
   try { n = stoi(atom->str); }
   catch (int e) {
-    cout << "Cannot apply primitive decr with non-integer arg " << atom->lisp_string() << endl;
-    return NULL;
+    throw logic_error("Cannot apply primitive decr with non-integer arg " + atom->lisp_string());
   }
   return at(to_string(n-1));
 }
@@ -315,14 +290,12 @@ pAST prim_plus(pList expr, Env& env) {
     pAST evaled = eval(xs->head, env);
     pAtom at = dynamic_pointer_cast<Atom>(evaled);
     if(!at) {
-      cout << "Cannot apply primitive + with non-atom arg " << evaled->lisp_string() << endl;
-      return NULL;
+      throw logic_error("Cannot apply primitive + with non-atom arg " + evaled->lisp_string());
     }
     int n;
     try { n = stoi(at->str); }
     catch (int e) {
-      cout << "Cannot apply primitive + with non-integer arg " << at->lisp_string() << endl;
-      return NULL;
+      throw logic_error("Cannot apply primitive + with non-integer arg " + at->lisp_string());
     }
     acc += n;
     xs = xs->tail;
@@ -331,8 +304,7 @@ pAST prim_plus(pList expr, Env& env) {
 }
 
 pAST prim_standalone_lambda(pList expr, Env& env) {
-  cout << "Cannot evaluate standalone primitive lambda with " << expr->lisp_string() << endl;
-  return NULL;
+  throw logic_error("Cannot evaluate standalone primitive lambda with " + expr->lisp_string());
 }
 
 void add_primitives() {
