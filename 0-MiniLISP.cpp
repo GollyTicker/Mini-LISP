@@ -11,13 +11,16 @@ const bool debug = false;
 
 // default runs as repl via stdin and stdout.
 // if first argument is "-e", then runs that expression, prints the result and terminates
+// otherwise if the first argument is "-f",
+// then the file with that name is loaded and executed. each expressions result is then printed
 int main(int k, char ** args) {
 
   string s;
   Env e = init_interpreter();
 
   bool single_expr = k >= 3 && string(args[1]) == "-e";
-  bool repl = !single_expr;
+  bool file_input = k >= 3 && string(args[1]) == "-f";
+  bool repl = !single_expr && ! file_input;
 
   if (repl) cout << "MiniLISP REPL. type quit or exit to terminate repl." << endl;
 
@@ -27,8 +30,15 @@ int main(int k, char ** args) {
       cout << "> ";
       getline(cin >> ws,s);
     }
-    else {
+    else if (single_expr) {
       s = string(args[2]);
+    }
+    else {
+      ifstream file(args[2]);
+      if (file.is_open()) {
+        s = string((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+        file.close();
+      }
     }
 
     if (repl && (s.compare("quit") == 0 || s.compare("exit") == 0)) {
@@ -40,11 +50,10 @@ int main(int k, char ** args) {
       try {
         vector<pAST> results = interpret_file_string(s, e);
         // changes in environment are recorded in e.
-        /* 3. print evaluated form. */
+        /* 3. print evaluated forms */
         for (pAST past : results) {
           cout << past->lisp_string() << endl;
         }
-        if (single_expr) break;
       }
       catch (exception& excp) {
         cout << excp.what() << endl;
@@ -52,6 +61,7 @@ int main(int k, char ** args) {
         // revert changes done by expression
         e=backup;
       }
+      if (single_expr || file_input) break;
     }
   }
 

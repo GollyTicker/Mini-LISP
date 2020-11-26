@@ -115,32 +115,6 @@ Parsed<List> list_expr(Ctx c);
 Parsed<Atom> atom_expr(Ctx c);
 Parsed<AST> lisp_expr(Ctx c);
 
-// parses full string into a lisp expression or fails with a NULL pointer.
-pAST parse_full(string s) {
-  if (debug) cout << "parse_full("<<s<<")"<< endl;
-
-  Ctx c(s);
-  Parsed<AST> p = lisp_expr(c);
-  optional<Result<AST> > r = get_opt(p);
-  if (r) {
-    Result<AST> res = r.value();
-    Ctx c2 = whitespace(res.c);
-    if (c2.notEOF()) {
-      ParseError e = ParseError("Finished parsing EXPR, but stream continues with",c2);
-      cout << "Error: " << e.msg << endl;
-      return NULL;
-    }
-    else { // reached end of stream
-      return res.val;
-    }
-  }
-  else {
-    ParseError err = get<ParseError>(p);
-    cout << "Error: " << err.msg << endl;
-    return NULL;
-  }
-}
-
 /* ignores current position in Ctx */
 Ctx remove_single_line_comments(Ctx c) {
   ostringstream ss;
