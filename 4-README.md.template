@@ -25,6 +25,10 @@ The interpreter comes with the following primitives:
 * run in cloud via Digital Ocean
 * give examples of code and give small cheat sheet for what is implemented
 * add *homoiconicity* example
+  * access implementations via `(define ast my-func ...)` e.g. `(define ast null ast) => (lambda (x) (eq x (quote ())))`
+    * should we also show implementations for primitives like `cond` etc?
+    * shall we enable changing them?
+  * use functions and quasiquotation to create computed expressions
 
 ### Features
 * a function `eval` written in MiniLISP which can emulates MiniLISP itself (in `standard_library.lisp`)
