@@ -52,4 +52,4 @@ The interpreter comes with the following primitives:
 4. To check that all tests pass: `run-tests.sh`
 
 ### Example expressions
-%%% runhaskell 2-run-examples.hs
+%%%./2-run-examples

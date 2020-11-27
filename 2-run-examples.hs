@@ -5,10 +5,6 @@ import Control.Monad
 import Data.List
 import Data.String.Utils
 
-main = do
-  ExitSuccess <- command [] "bash" ["2-compile-cpp.sh"]
-  processLinewise
-
 skip_rule = "#ignore-embed-eval#"
 
 runTests = zipWithM ( \inp ex ->
@@ -33,7 +29,7 @@ embedEvalCases = takeWhile (\s -> not (isInfixOf "#ignore-embed-eval-following#"
 
 splitLines = lines . replace "\\\n" "" -- use backslash for multi-line expressions
 
-processLinewise = do
+main = do
   inputs <- splitLines <$> readFile "1-examples.in"
   expected <- splitLines <$> readFile "1-examples.out"
 
