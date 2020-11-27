@@ -46,10 +46,13 @@ The interpreter comes with the following primitives:
 * a small *standard library* can be found in `standard-library.lisp`
 
 ### Installation & Usage
-1. Please ensure you have a linux sysem with [Docker](https://docs.docker.com/get-docker/) installed
-2. Clone this repository
-3. Run ```./repl.sh``` to build the docker image and run the MiniLISP REPL
-4. To check that all tests pass: `run-tests.sh`
+1. Please ensure you have a linux system with [Docker](https://docs.docker.com/get-docker/) installed
+2. (Install cmake for Makefile)
+3. Clone this repository
+4. Run ```make repl``` to build the docker image and run the MiniLISP REPL
+5. To check that all tests pass: `make test`
+
+For further debugging purposes, one can use `make docker-bash` to build and connect to a terminal in the container
 
 ### Example expressions
 * :)  `'(a b c) => (a b c)`
