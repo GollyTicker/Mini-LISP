@@ -9,6 +9,9 @@ build:
 docker-bash: build
 	docker run --rm ${RUN_DEFAULT_ARGS} bash
 
+docker-server:build
+	docker run --rm ${RUN_DEFAULT_ARGS} runhaskell 5-HTTP.hs
+
 repl: build
 	docker run --rm ${RUN_DEFAULT_ARGS}
 
