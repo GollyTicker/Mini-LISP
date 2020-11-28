@@ -4,7 +4,7 @@ RUN echo "============ This will take a few minutes.... ============"
 
 # install haskell
 RUN apt-get update && apt-get install -y haskell-platform
-RUN cabal update && cabal install command MissingH firefly
+RUN cabal update && cabal install command MissingH firefly Unixutils
 
 RUN g++ --version
 RUN ghc --version
@@ -12,6 +12,8 @@ RUN ghc --version
 # install app
 RUN mkdir /app
 WORKDIR /app
+# temporary working directory for requests
+RUN mkdir tmp
 
 # copy files
 COPY [0-9]* ./
