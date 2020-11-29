@@ -16,6 +16,7 @@ WORKDIR /app
 RUN mkdir tmp
 
 # copy files
+COPY Makefile ./
 COPY [0-9]* ./
 
 # compile MiniLISP and haskell

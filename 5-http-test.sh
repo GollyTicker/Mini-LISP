@@ -12,10 +12,10 @@ URL="http://localhost:$PORT/MiniLISP/file"
 TOTAL=""
 
 RES="$(curl -G -s --max-time 10 --data-urlencode "value='hi" "$URL")"
-test $RES = hi || TOTAL="failed"
+[ $RES = hi ] || TOTAL="failed"
 
 RES="$(curl -G -s --max-time 10 --data-urlencode "value=(eval '(cond ('() 'b) ('t 'a)) '())" "$URL")"
-test $RES = a || TOTAL="failed"
+[ $RES = a ] || TOTAL="failed"
 
 RES="$(curl -G -s --max-time 10 --data-urlencode "value=(eval '((lambda (f n ig) (cond ((eq n '0) '0) ('t (+ n (f (decr n) ))))) '+ '2 '#ignore-embed-eval#) (environment))" "$URL")"
 (echo "$RES" | grep "Time Limit" > /dev/null ) || TOTAL="failed"

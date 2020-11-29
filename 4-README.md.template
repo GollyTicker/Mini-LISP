@@ -20,13 +20,9 @@ The interpreter comes with the following primitives:
 * `quasiquotation` (?)
 
 ### TODOs
-* package into REST api
 * serve via Vue
 * run in cloud via Digital Ocean
-* write asynchronous tests for the webserver
-  * `curl -G --data-urlencode "value='hi" http://localhost:3000/MiniLISP/file`
-  * `curl -G --data-urlencode "value=(eval '(cond ('() 'b) ('t 'a)) '())" http://localhost:3000/MiniLISP/file`
-  * `curl -G --data-urlencode "value=(eval '((lambda (f n ig) (cond ((eq n '0) '0) ('t (+ n (f (decr n) ))))) '+ '2 '#ignore-embed-eval#) (environment))" http://localhost:3000/MiniLISP/file`
+* refactor structure into various folders
 * give examples of code and give small cheat sheet for what is implemented
 * add *homoiconicity* example
   * access implementations via `(define ast my-func ...)` e.g. `(define ast null ast) => (lambda (x) (eq x (quote ())))`

@@ -19,6 +19,10 @@
   weak_ptr doesn't contribute to reference count and keeps
   garbage collection enabled for shared pointers.
 
-* TODOs:
-  * package into docker container
-  * publish online as a repl?
+* add node dependency:
+  * install node: ?
+  * install vue cli: npm install -g @vue/cli
+  * (once): vue create scratchpad
+    * Vue 3
+    * NPM
+    * in 6-scratchpad: npm run serve
