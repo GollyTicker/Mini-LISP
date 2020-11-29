@@ -25,10 +25,10 @@ main = do
   putStrLn $ "Running at port " ++ show p
   run p $ withLogger $ app to
 
+-- routes are already started in new threads, so
+-- blocking behavior in these threads is acceptable
 app :: Int -> App ()
 app timeout = do
-  -- routes are already started in new threads, so
-  -- blocking behavior in these threads is acceptable
   route "/health" healthHandler
   route "/MiniLISP/file" (fileHandler timeout)
 
