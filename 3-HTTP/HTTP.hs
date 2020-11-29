@@ -27,6 +27,8 @@ main = do
 
 app :: Int -> App ()
 app timeout = do
+  -- routes are already started in new threads, so
+  -- blocking behavior in these threads is acceptable
   route "/health" healthHandler
   route "/MiniLISP/file" (fileHandler timeout)
 
