@@ -5,8 +5,8 @@ using namespace std;
 
 const bool debug = false;
 
-#include "0-Parser.cpp"
-#include "0-Eval.cpp"
+#include "Parser.cpp"
+#include "Eval.cpp"
 // ^ being lazy and not using header files.
 
 // default runs as repl via stdin and stdout.

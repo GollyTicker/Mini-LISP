@@ -1,5 +1,5 @@
 #/bin/bash
-s="$(cat 4-README.md.template)"
+s="$(cat 2-readme-generator/README.md.template)"
 
 PREFIX=$(echo "$s" | grep -B 1000 '^%%%' | sed '$d')
 CMD="$(echo "$s" | grep '^%%%' | cut -c 4-)"

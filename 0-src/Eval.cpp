@@ -13,7 +13,7 @@ typedef pAST evalProc(pList, Env&);
 // may change the environment.
 pAST eval(pAST expr, Env& env);
 
-#include "0-EvalPrimitives.cpp"
+#include "EvalPrimitives.cpp"
 
 map< weak_ptr<AST>, shared_ptr<AST>, owner_less< weak_ptr<AST> > > eval_memoised;
 
@@ -130,7 +130,7 @@ vector<pAST> interpret_file_string(string input, Env& env) {
 
 /* standard library definitions */
 void add_standard_library(Env& env) {
-  string std_lib = "1-standard-library.lisp";
+  string std_lib = "1-interpreter/standard-library.lisp";
   ifstream file(std_lib);
   string std_defs;
   if (file.is_open()) {

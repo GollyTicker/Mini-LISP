@@ -31,10 +31,10 @@ app timeout = do
   route "/MiniLISP/file" (fileHandler timeout)
 
 getPort :: IO Int
-getPort = (\x -> read x :: Int) <$> readFile "5-HTTP-port.txt"
+getPort = (\x -> read x :: Int) <$> readFile "3-HTTP/port.txt"
 
 getTimeout :: IO Int
-getTimeout = (\x -> read x :: Int) <$> readFile "5-HTTP-timeout-ms.txt"
+getTimeout = (\x -> read x :: Int) <$> readFile "3-HTTP/timeout-ms.txt"
 
 healthHandler :: Handler T.Text
 healthHandler = return "healthy"
@@ -58,7 +58,7 @@ processRequest :: T.Text -> MVar T.Text -> IO ()
 processRequest input mres = withTemporaryDirectory "tmp" $ \dir ->
   do  let inputf = (dir ++ "/input.lisp")
       TIO.writeFile inputf input
-      (Exit c, Stdout out) <- command [] "./MiniLISP" ["-f", inputf]
+      (Exit c, Stdout out) <- command [] "bin/MiniLISP" ["-f", inputf]
       res <- case c of
         ExitSuccess -> return $ T.pack out
         ExitFailure i ->  do

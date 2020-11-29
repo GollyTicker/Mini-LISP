@@ -29,6 +29,7 @@ The interpreter comes with the following primitives:
     * should we also show implementations for primitives like `cond` etc?
     * shall we enable changing them?
   * use functions and quasiquotation to create computed expressions
+* talk a bit about using Vue, Haskell Firefly and Docker
 
 ### Features
 * a function `eval` written in MiniLISP which can emulates MiniLISP itself (in `standard_library.lisp`)

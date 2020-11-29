@@ -1,4 +1,4 @@
-# 6-scratchpad
+# 4-scratchpad
 
 ## Project setup
 ```

@@ -6,6 +6,7 @@ import Data.List
 import Data.String.Utils
 
 skip_rule = "#ignore-embed-eval#"
+longTests = True
 
 runTests = zipWithM ( \inp ex ->
   if isInfixOf "(eval" inp && (skip_rule `isInfixOf` inp) then
@@ -13,7 +14,7 @@ runTests = zipWithM ( \inp ex ->
     >> return True
   else
     do
-      Stdout out' <- command [] "./MiniLISP" ["-e",inp]
+      Stdout out' <- command [] "bin/MiniLISP" ["-e",inp]
       let out = init out' -- ignore \n at end
       if (out == ex)
         then putStrLn (":) | " ++ inp ++ " => " ++ ex)
@@ -30,8 +31,8 @@ embedEvalCases = takeWhile (\s -> not (isInfixOf "#ignore-embed-eval-following#"
 splitLines = lines . replace "\\\n" "" -- use backslash for multi-line expressions
 
 main = do
-  inputs <- splitLines <$> readFile "1-examples.in"
-  expected <- splitLines <$> readFile "1-examples.out"
+  inputs <- splitLines <$> readFile "1-interpreter/examples.in"
+  expected <- splitLines <$> readFile "1-interpreter/examples.out"
 
   let inps = testCases inputs
       expt = testCases expected
@@ -47,8 +48,10 @@ main = do
 
   putStrLn $ "*************\nRepeating tests with lisp self-interpreter: " ++ replacementRule
 
-  res2 <- runTests (map embedInEval (embedEvalCases inps)) expt
+  res2 <- if longTests
+      then runTests (map embedInEval (embedEvalCases inps)) expt
+      else return []
 
   if (and res1 && and res2)
-    then putStrLn "*+++ All tests passed! +++*"
-    else putStrLn "*XXX Some tests failed! XXX*"
+    then putStrLn "*+++ All tests passed! +++*" >> exitSuccess
+    else putStrLn "*XXXXXXXXXXXXXXX Some tests failed! XXXXXXXXXXXXXXX*" >> exitFailure

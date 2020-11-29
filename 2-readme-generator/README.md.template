@@ -29,6 +29,7 @@ The interpreter comes with the following primitives:
     * should we also show implementations for primitives like `cond` etc?
     * shall we enable changing them?
   * use functions and quasiquotation to create computed expressions
+* talk a bit about using Vue, Haskell Firefly and Docker
 
 ### Features
 * a function `eval` written in MiniLISP which can emulates MiniLISP itself (in `standard_library.lisp`)
@@ -55,4 +56,4 @@ The interpreter comes with the following primitives:
 For further debugging purposes, one can use `make docker-bash` to build and connect to a terminal in the container. The server can be run via `make docker-server` at the port in `5-HTTP-port.txt`
 
 ### Example expressions
-%%% runhaskell ./2-run-examples.hs
+%%% runhaskell 1-interpreter/run-examples.hs

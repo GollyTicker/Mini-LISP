@@ -26,7 +26,7 @@ TODO: perhaps pass the input string as reference instead of directly? */
 #include<variant>
 #include<sstream>
 
-#include "0-AST.cpp"
+#include "AST.cpp"
 
 /* parsing types: Context, Result and Error.
 A parser for type T is a function Ctx => Parsed<T> where T <= AST */

@@ -16,13 +16,16 @@ WORKDIR /app
 RUN mkdir tmp
 
 # copy files
+COPY bin bin
+COPY 0-src 0-src
+COPY 1-interpreter 1-interpreter
+COPY 2-readme-generator 2-readme-generator
+COPY 3-HTTP 3-HTTP
 COPY Makefile ./
-COPY [0-9]* ./
+COPY [1-9]* ./
 
 # compile MiniLISP and haskell
-RUN ./2-compile-cpp.sh
-
-# TODO: compile HTTP rest endpoint
+RUN 1-interpreter/compile-cpp.sh
 
 # REPL as entrypoint
-CMD ./MiniLISP
+CMD bin/MiniLISP
