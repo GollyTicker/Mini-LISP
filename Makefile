@@ -13,6 +13,10 @@ docker-bash: build
 docker-server: build
 	docker run --rm ${RUN_DEFAULT_ARGS} runhaskell 3-HTTP/HTTP.hs
 
+# production docker server. find logs via docker logs minilisp-server
+docker-server-prod: build
+	docker run --name minilisp-server ${RUN_DEFAULT_ARGS} runhaskell 3-HTTP/HTTP.hs
+
 docker-server-no-tty:
 	docker run --rm ${RUN_DEFAULT_ARGS_NO_TTY} runhaskell 3-HTTP/HTTP.hs
 
