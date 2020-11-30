@@ -25,7 +25,7 @@
   * (once): vue create scratchpad
     * Vue 3
     * NPM
-    * in 6-scratchpad: npm run serve
+    * in 4-scratchpad: npm run serve
       ## Project setup
       ```
       npm install
