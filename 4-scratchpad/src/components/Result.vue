@@ -1,18 +1,29 @@
 <template>
   <p class="sub-title">Output</p>
-  <textarea id="out-text" v-model="value"/>
+  <textarea id="out-text" readonly v-model="value"/>
 </template>
 
 <script>
 export default {
   name: 'Result',
   el: "#out-text",
-  data: () => {
+  data() {
     return {
       value: "<output>"
     }
+  },
+  methods: {
+    asyncDisplayResult() {
+      this.value = this.value + " *"
+    }
+  },
+  mounted() {
+    setInterval(() => {
+      this.asyncDisplayResult()
+    }, 400)
   }
 }
+
 </script>
 
 <style scoped>
