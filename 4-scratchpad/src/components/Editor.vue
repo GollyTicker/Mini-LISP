@@ -1,4 +1,5 @@
 <template>
+  <p class="sub-title" >Editor</p>
   <textarea id="#edit-text" v-model="value"/>
 </template>
 
@@ -14,6 +15,5 @@ export default {
 </script>
 
 <style scoped>
-#edit-text {
-}
+
 </style>

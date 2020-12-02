@@ -42,3 +42,5 @@
       ```
       npm run lint
       ```
+
+* TODO: collect lisence information (especially license notices...)
