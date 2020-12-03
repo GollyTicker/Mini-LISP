@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "generate-static-assets": "echo Generating default.lisp... ; cp ../1-interpreter/standard-library.lisp src/assets/default.lisp; echo -n 'DONE: '; ls src/assets",
-    "preserve": "npm run generate-static-assets",
+    "pre-script": "runhaskell lisp-loader.hs src/components/Editor.vue.loader",
+    "preserve": "npm run pre-script",
     "serve": "vue-cli-service serve",
-    "prebuild": "npm run generate-static-assets",
+    "prebuild": "npm run pre-script",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },

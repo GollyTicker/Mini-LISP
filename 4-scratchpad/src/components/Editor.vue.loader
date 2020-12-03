@@ -1,0 +1,25 @@
+<template>
+  <div class="box">
+    <div class="row flex-fixed">
+      <p class="sub-title" >Editor</p>
+    </div>
+    <div class="row flex-floating">
+      <textarea id="#edit-text" v-model="value"/>
+    </div>
+  </div>
+</template>
+
+<script>
+// the .loader extension runs lisp-loader.hs which replaces
+// the string between the lined-c's with the content of that respective file
+const default_lisp = `¢src/assets/default.lisp¢`
+
+export default {
+  name: 'Editor',
+  data: () => {
+    return {
+      value: default_lisp
+    }
+  }
+}
+</script>
