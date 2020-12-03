@@ -1,6 +1,12 @@
 <template>
-  <p class="sub-title">Output</p>
-  <textarea id="out-text" readonly v-model="value"/>
+  <div class="box">
+    <div class="row flex-fixed">
+      <p class="sub-title">Output</p>
+    </div>
+    <div class="row flex-floating">
+      <textarea id="out-text" readonly v-model="value"/>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -25,9 +31,3 @@ export default {
 }
 
 </script>
-
-<style scoped>
-#out-text {
-  border: 2px white solid;
-}
-</style>

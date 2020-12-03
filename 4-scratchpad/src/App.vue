@@ -1,23 +1,31 @@
 <template>
-  <div id="top-bar">
-    <h1>MiniLISP Scratchpad</h1>
-  </div>
+  <div class="box">
+    <div id="top-bar" class="row flex-fixed">
+      <h1>MiniLISP Scratchpad</h1>
+    </div>
 
-  <div id="#top-bar">
-    <Splitpanes
-      class="default-theme"
-      style="height: 100%; width: 100%;"
-      vertical>
+    <div id="content-bar" class="row flex-floating">
+      <!-- make content-bar take up rest of the screen: #fillup
+        https://stackoverflow.com/questions/90178/make-a-div-fill-the-height-of-the-remaining-screen-space
+      -->
+      <Splitpanes
+        class="default-theme"
+        style="height: 100%; width: 100%;"
+        vertical>
 
-      <Pane min-size="20" max-size="80">
-        <Editor />
-      </Pane>
+        <Pane min-size="20" max-size="80">
+          <Editor />
+        </Pane>
 
-      <Pane min-size="20" max-size="80">
-        <Result />
-      </Pane>
+        <Pane min-size="20" max-size="80">
+          <Result />
+        </Pane>
 
-    </Splitpanes>
+      </Splitpanes>
+    </div>
+
+    <div id="footer-bar" class="row flex-fixed" style="height: 5px"> </div>
+
   </div>
 </template>
 
@@ -46,7 +54,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   margin: 0px;
-  /*margin-top: 60px;*/
   height: 100%;
 }
 
@@ -59,19 +66,38 @@ html, body {
   font-size: 1.1em;
 }
 
+body {
+  color: #ecf0f2;
+  background-color: #122617;
+}
+
 p.sub-title {
   font-size: 1.05em;
   font-weight: bolder;
   text-align: left;
 }
 
-body {
-  color: #ecf0f2;
-  background-color: #122617;
+/*  #fillup */
+.box {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
 }
 
-#content-bar {
-  height:100%;
+/*  #fillup DEBUG */
+.box > .row {
+  /* border: 1px dotted red;
+  margin: 0.5px; */
+}
+
+/*  #fillup */
+.box .row.flex-fixed {
+  flex: 0 1 auto;
+}
+
+/*  #fillup */
+.box .row.flex-floating {
+  flex: 1 1 auto;
 }
 
 /* splitpanes */
@@ -82,9 +108,10 @@ body {
   padding: 5px 10px 5px 10px;
 }
 
-.default-theme.splitpanes--vertical>.splitpanes__splitter{
-  width: 7px;
-  background-color: #828687;
+.default-theme.splitpanes--vertical>.splitpanes__splitter {
+  width: 6px;
+  background-color: #000;
+  border: 2px #828687 double;
 }
 
 textarea {
