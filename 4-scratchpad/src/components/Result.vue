@@ -13,23 +13,27 @@
 
 // how to integate ajax: https://vuejsdevelopers.com/2017/08/28/vue-js-ajax-recipes/
 
+window.out_text = "<output>"
+
 export default {
   name: 'Result',
   el: "#out-text",
   data() {
     return {
-      value: "<output>"
+      value: window.out_text
     }
   },
   methods: {
     asyncDisplayResult() {
-      this.value = this.value + " *"
+      return;
+      //const str = (document.getElementById("edit-text") || {value:""}).value
+      //this.value = this.value + " " + str.length
     }
   },
   mounted() {
     setInterval(() => {
-      this.asyncDisplayResult()
-    }, 400)
+      //this.asyncDisplayResult()
+    }, 500)
   }
 }
 

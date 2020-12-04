@@ -70,8 +70,8 @@ body {
   background-color: #122617;
 }
 
-p.sub-title {
-  font-size: 1.05em;
+p.sub-title, span.sub-title {
+  font-size: 1.1em;
   font-weight: bolder;
   text-align: left;
 }
