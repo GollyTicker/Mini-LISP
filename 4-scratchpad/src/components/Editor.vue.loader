@@ -14,6 +14,13 @@
 // the string between the lined-c's with the content of that respective file
 const default_lisp = `¢src/assets/default.lisp¢`
 
+// use syntax highlighting plugins:
+/*
+use syntax highlighting plugins: prism plugins (cool!)
+
+https://prismjs.com/index.html#plugins
+*/
+
 export default {
   name: 'Editor',
   data: () => {

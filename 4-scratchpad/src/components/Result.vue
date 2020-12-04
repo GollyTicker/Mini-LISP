@@ -10,6 +10,9 @@
 </template>
 
 <script>
+
+// how to integate ajax: https://vuejsdevelopers.com/2017/08/28/vue-js-ajax-recipes/
+
 export default {
   name: 'Result',
   el: "#out-text",

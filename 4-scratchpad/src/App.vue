@@ -34,7 +34,6 @@ import Editor from './components/Editor.vue'
 import Result from './components/Result.vue'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
-// import VueSplit from 'vue-split-panel' // added in main.js
 
 export default {
   name: 'App',
@@ -114,7 +113,7 @@ p.sub-title {
   border: 2px #828687 double;
 }
 
-textarea {
+code, textarea {
   resize: none;
   color: inherit;
   background-color: inherit;
