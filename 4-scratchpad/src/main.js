@@ -6,4 +6,3 @@ app.mount('#app')
 
 // for debug purposes
 window._app = app
-window.out_text = ""

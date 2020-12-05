@@ -11,29 +11,24 @@
 
 <script>
 
-// how to integate ajax: https://vuejsdevelopers.com/2017/08/28/vue-js-ajax-recipes/
+const output = function() { return document.getElementById("out-text"); }
 
-window.out_text = "<output>"
-
-export default {
-  name: 'Result',
-  /*data() {
-    return {
-      value: window.out_text
-    }
-  },
-  methods: {
-    asyncDisplayResult() {
-      return;
-      //const str = (document.getElementById("edit-text") || {value:""}).value
-      //this.value = this.value + " " + str.length
-    }
-  },
-  mounted() {
-    setInterval(() => {
-      //this.asyncDisplayResult()
-    }, 500)
-  }*/
+const handleResponseText = function(responseText) {
+  output().innerText = responseText
 }
+
+const handleError = function() {
+  output().innerText = "Some internal error occured, Sorry! (server unreachable, unsupported characters, ...)"
+}
+
+const exportedObject = {
+  name: 'Result',
+  handleResponseText: handleResponseText,
+  handleError: handleError
+}
+
+window.ResultComponent = exportedObject
+
+export default exportedObject
 
 </script>
