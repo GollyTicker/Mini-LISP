@@ -4,7 +4,7 @@
       <p class="sub-title">Output</p>
     </div>
     <div class="row flex-floating">
-      <textarea id="out-text" readonly v-model="value"/>
+      <code id="out-text" class="language-lisp code-text match-braces" contenteditable readonly>bla bla blasbla </code>
     </div>
   </div>
 </template>
@@ -17,8 +17,7 @@ window.out_text = "<output>"
 
 export default {
   name: 'Result',
-  el: "#out-text",
-  data() {
+  /*data() {
     return {
       value: window.out_text
     }
@@ -34,7 +33,7 @@ export default {
     setInterval(() => {
       //this.asyncDisplayResult()
     }, 500)
-  }
+  }*/
 }
 
 </script>

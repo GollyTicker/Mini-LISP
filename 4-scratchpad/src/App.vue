@@ -62,7 +62,7 @@ html, body {
   margin: 0px;
   padding: 0px;
   border: 0px;
-  font-size: 1.1em;
+  font-size: 1.05em;
 }
 
 body {
@@ -71,7 +71,6 @@ body {
 }
 
 p.sub-title, span.sub-title {
-  font-size: 1.1em;
   font-weight: bolder;
   text-align: left;
 }
@@ -97,6 +96,7 @@ p.sub-title, span.sub-title {
 /*  #fillup */
 .box .row.flex-floating {
   flex: 1 1 auto;
+  height: auto;
 }
 
 /* splitpanes */
@@ -113,14 +113,15 @@ p.sub-title, span.sub-title {
   border: 2px #828687 double;
 }
 
-code, textarea {
+.code-text {
+  display: block;
   resize: none;
-  color: inherit;
-  background-color: inherit;
-  font-size: 1.1em;
   width: calc(100% - 20px);
   height: calc(100% - 10px);
   float: left;
+  font-size: 0.9em !important;
+  border: 1.5px solid white;
+  white-space: pre-wrap !important; /* override prism syntax highlighting */
 }
 
 </style>

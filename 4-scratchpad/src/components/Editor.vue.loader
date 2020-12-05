@@ -6,7 +6,11 @@
       <div style="clear: both"></div>
     </div>
     <div class="row flex-floating">
-      <textarea id="edit-text" v-model="value"/>
+      <code id="edit-text" class="language-lisp code-text" contenteditable></code>
+      <!-- v-on:keyup="updateHighlighting"
+      It should be called on change. However doing that
+      on every keyup makes the cursor position in the text be reset to the first element.
+      Resettting the focus and selection didn't quite work as well... -->
     </div>
   </div>
 </template>
@@ -16,28 +20,32 @@
 // the string between the lined-c's with the content of that respective file
 const default_lisp = `¢src/assets/default.lisp¢`
 
-// use syntax highlighting plugins:
-/*
-use syntax highlighting plugins: prism plugins (cool!)
-
-https://prismjs.com/index.html#plugins
-*/
-
 export default {
   name: 'Editor',
-  data: () => {
-    return {
-      value: default_lisp
-    }
+  mounted() {
+    document.getElementById("edit-text").textContent = default_lisp;
+    this.updateHighlighting();
   },
   methods: {
     asyncRequestEvaluation: function() {
+      this.updateHighlighting()
       console.log("fake request to backend...")
       setTimeout(() => {
         window.out_text = window.out_text + " *"
         console.log("updated! to " + window.out_text)
       },1000)
+    },
+    updateHighlighting: function() {
+      window.Prism.highlightAll()
     }
   }
 }
 </script>
+
+
+<style scoped>
+
+#edit-text {
+}
+
+</style>

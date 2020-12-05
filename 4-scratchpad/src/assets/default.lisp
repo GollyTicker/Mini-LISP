@@ -18,12 +18,10 @@
 (define! len '(lambda (xs) (ifelse (null xs) '0  (+ '1 (len (cdr xs))))))
 (define! unlist '(lambda (z f xs) (ifelse (null xs) z (f (car xs) (cdr xs)))))
 (define! foldr '(lambda (f z xs) (unlist z (lambda (x rs) (f x (foldr f z rs))) xs)))
-(define! foldl '(lambda (f z xs) (unlist z (lambda (x rs) (foldl f (f z x) rs)) xs)))
 (define! append '(lambda (xs ys) (unlist ys (lambda (x rs) (cons x (append rs ys))) xs)))
-(define! zip '(lambda (xs ys) (ifelse (or (null xs) (null ys)) '()  (cons (list (car xs) (car ys)) (zip (cdr xs) (cdr ys))))))
 (define! map '(lambda (f xs) (foldr (lambda (x r) (cons (f x) r)) '() xs)))
-(define! assoc ; test-comment
-  '(lambda (k ps nl)
+(define! assoc
+  '(lambda (k ps nl) ; inline-comments
     (cond
       ((null ps) nl)
       ((eq k (caar ps)) (cadar ps))
