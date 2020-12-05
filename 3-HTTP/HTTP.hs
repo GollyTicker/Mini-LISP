@@ -13,6 +13,7 @@ import Control.Concurrent.MVar
 import Web.Firefly
 import qualified Network.Wai as W
 import Network.HTTP.Types.URI
+import Network.HTTP.Types.Header
 
 import Control.Monad
 import Control.Monad.Trans
@@ -23,7 +24,7 @@ main = do
   p <- getPort
   to <- getTimeout
   putStrLn $ "Running at port " ++ show p
-  run p $ withLogger $ app to
+  run p $ withCORS $ withLogger $ app to
 
 -- routes are already started in new threads, so
 -- blocking behavior in these threads is acceptable
@@ -87,6 +88,16 @@ withLogger = addMiddleware before after
       liftIO . TIO.putStrLn $ "INFO: REQUEST [" <> method <> "] " <> path
       waiRequest
 
+    after :: W.Response -> App W.Response
     after resp = do
       liftIO $ TIO.putStrLn $ "INFO: RESPONSE " `mappend` (T.pack $ show (W.responseStatus resp))
       return resp
+
+withCORS :: App () -> App ()
+withCORS = addMiddleware waiRequest $ \resp ->
+  addHeaders ([("Access-Control-Allow-Origin","*")] :: ResponseHeaders) resp
+
+addHeaders :: ResponseHeaders -> W.Response -> App W.Response
+addHeaders newHeaders response = do
+  let (status, existingHeaders, streamHandle) = W.responseToStream response
+  liftIO $ streamHandle $ return . W.responseStream status (existingHeaders `mappend` newHeaders)
