@@ -7,9 +7,10 @@
     </div>
     <div class="row flex-floating">
       <code id="edit-text" class="language-lisp code-text" contenteditable
-            v-on:paste="pasteEvent"></code>
+            v-on:paste="pasteEvent"
+            v-on:keyup="updateHighlighting"></code>
 
-      <!-- v-on:keyup="updateHighlighting"
+      <!--
       It should be called on change. However doing that
       on every keyup makes the cursor position in the text be reset to the first element.
       Resettting the focus and selection didn't quite work as well... -->
@@ -25,15 +26,75 @@ const editor = function() { return document.getElementById("edit-text"); }
 
 const resultComponent = function() { return window.ResultComponent; }
 
+var previousText = ""
+const textIsUnchanged = function() {
+  const currentText = editor().innerText
+  return currentText == previousText;
+}
+
+function setCaretPosition(elem, caretPos) {
+  console.log("Element: " + elem)
+  if(elem != null) {
+    if(elem.createTextRange) {
+      var range = elem.createTextRange();
+      console.log("Create text range: " + range)
+      range.move('character', caretPos);
+      console.log("position" + range.startOffset)
+      range.select();
+    }
+    else {
+      if(elem.selectionStart) {
+        console.log("selectionStart: ", elem.selectionStart)
+        elem.focus();
+        elem.setSelectionRange(caretPos, caretPos);
+      }
+      else {
+        console.log("Focused...")
+        elem.focus();
+      }
+    }
+  }
+}
+window.__setCaretPosition = setCaretPosition
+
+function numberOfCharactersUntilCaret(root, node, offset) {
+  console.log("===============================================================")
+  console.log("numberOfCharactersUntilCaret with <" + (root && root.nodeName) + ">" + " node: " + node + ", offset " + offset)
+  if (root != null) {
+    root.childNodes.forEach(child => {
+      var elementToInspect = null;
+      if (child.nodeName.toLowerCase() == "span") { /* prism formatted. try child text node */
+        //console.log("Found <span> with conent" + child.innerText + ", firstChild" + child.firstChild)
+        elementToInspect = child.firstChild
+      }
+      else if (child.nodeName.toLowerCase() == "#text") {
+        elementToInspect = child;
+      }
+      else {
+        //console.log("Ignore child with NodeName: " + child.nodeName.toLowerCase())
+      }
+
+      if(elementToInspect == node) {
+        console.log("!!!!!!!!!!!Found node!!!!!!!!!!!!!!!")
+      }
+    })
+    return [root,node,offset]
+  }
+  else {
+    console.log("Root is null.")
+    return 0;
+  }
+}
+
 export default {
   name: 'Editor',
   mounted() {
     editor().innerText = default_lisp; // set initial text
-    updateHighlighting();
+    this.updateHighlighting();
   },
   methods: {
     asyncRequestEvaluation: function() {
-      updateHighlighting()
+      this.updateHighlighting()
       MiniLISP_HTTP.requestBackendEvaluation(
         editor().innerText,
         resultComponent().handleResponseText,
@@ -49,6 +110,35 @@ export default {
       selection.collapseToEnd()
 
       event.preventDefault();
+
+      /* TODO: updateHighlighting() */
+    },
+    updateHighlighting() {
+      console.log("updateHighlighting: text " + (textIsUnchanged()?"is same":"HAS CHANGED"))
+      if (textIsUnchanged()) return;
+
+      /* remember selection so that we can restore it.*/
+      const sel = window.getSelection()
+      const selectedNode = sel.anchorNode
+      console.log("Selection: anchorNode " + sel.anchorNode.nodeName + ", anchorOffset" + sel.anchorOffset +
+        ", focusNode" + sel.focusNode.nodeName + ", focusOffset " + sel.focusOffset)
+      console.log("Range count: " + sel.rangeCount + ", toString" + sel.toString())
+      const range = sel.getRangeAt(0)
+      console.log("Range: " + range.startOffset + " to " + range.endOffset)
+
+      numberOfCharactersUntilCaret(editor(),selectedNode,range.startOffset)
+
+      /* currect user inserted whitespace. which gets lost with syntax highlighting */
+      editor().textContent = editor().innerText
+      window.Prism.highlightAll()
+
+      console.log("Selected node still exists?" + (selectedNode && selectedNode.nodeName))
+      // selectedNode.innerText = "DID YOU SEE THIS?"
+      // Node is still in background but not visible anymore...
+
+      // setCaretPosition(editor(),25)
+
+      previousText = editor().innerText
     }
   }
 }
@@ -56,12 +146,5 @@ export default {
 // the .loader extension runs lisp-loader.hs which replaces
 // the string between the tilde with the content of that respective file
 const default_lisp = `~src/assets/default.lisp~`
-
-const updateHighlighting = function() {
-  /* currect user inserted whitespace. which gets lost with syntax highlighting */
-  editor().textContent = editor().innerText
-
-  window.Prism.highlightAll()
-}
 
 </script>
