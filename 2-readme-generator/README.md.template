@@ -21,7 +21,7 @@ The interpreter comes with the following primitives:
 
 ### TODOs
 * run in cloud via Digital Ocean
-* correct pasting formatted html to normal html (!)
+* fix cursor position with auto-syntax highlighting
 * give examples of code and give small cheat sheet for what is implemented
 * add *homoiconicity* example
   * access implementations via `(define ast my-func ...)` e.g. `(define ast null ast) => (lambda (x) (eq x (quote ())))`

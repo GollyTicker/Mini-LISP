@@ -6,7 +6,8 @@
       <div style="clear: both"></div>
     </div>
     <div class="row flex-floating">
-      <code id="edit-text" class="language-lisp code-text" contenteditable></code>
+      <code id="edit-text" class="language-lisp code-text" contenteditable
+            v-on:paste="pasteEvent"></code>
 
       <!-- v-on:keyup="updateHighlighting"
       It should be called on change. However doing that
@@ -37,6 +38,17 @@ export default {
         editor().innerText,
         resultComponent().handleResponseText,
         resultComponent().handleError)
+    },
+    pasteEvent(event) {
+      let paste = (event.clipboardData || window.clipboardData).getData('text');
+
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return false;
+      selection.deleteFromDocument();
+      selection.getRangeAt(0).insertNode(document.createTextNode(paste));
+      selection.collapseToEnd()
+
+      event.preventDefault();
     }
   }
 }

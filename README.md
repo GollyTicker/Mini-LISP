@@ -20,9 +20,9 @@ The interpreter comes with the following primitives:
 * `quasiquotation` (?)
 
 ### TODOs
-* serve via Vue
 * run in cloud via Digital Ocean
-* coor formatting of output if parse failure / eval error?
+* correct pasting formatted html to normal html (!)
+* extend timeout in frontend to comply with LISP_HTTP timeout
 * give examples of code and give small cheat sheet for what is implemented
 * add *homoiconicity* example
   * access implementations via `(define ast my-func ...)` e.g. `(define ast null ast) => (lambda (x) (eq x (quote ())))`

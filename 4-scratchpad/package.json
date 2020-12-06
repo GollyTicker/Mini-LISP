@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "pre-script": "runhaskell lisp-loader.hs src/components/Editor.vue.loader",
+    "pre-script": "runhaskell lisp-loader.hs src/components/Editor.vue.loader && runhaskell lisp-loader.hs src/HTTP.js.loader",
     "preserve": "npm run pre-script",
     "serve": "vue-cli-service serve",
     "prebuild": "npm run pre-script",
