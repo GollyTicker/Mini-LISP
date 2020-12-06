@@ -33,7 +33,7 @@ repl: build
 	docker run --rm ${DEFAULT_ARGS} bin/MiniLISP
 
 docker-scratchpad: build
-	docker run --rm --name ${SCRATCHPADER} ${SCRATCHPAD_ARGS} serve -s -l 8080 4-scratchpad/dist
+	docker run --rm --name ${SCRATCHPADER} ${SCRATCHPAD_ARGS} serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
 
 test: build test-0-reset
 	docker run --name ${TESTER} ${DEFAULT_ARGS} bash 2-readme-generator/generate-readme.sh && docker cp ${TESTER}:/app/README.md README.md

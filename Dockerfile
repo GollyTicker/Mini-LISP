@@ -40,11 +40,3 @@ COPY Makefile ./
 
 # frontend
 RUN (cd 4-scratchpad && npm run build)
-
-#FROM nginx as production-stage
-#RUN mkdir /app
-#COPY --from=build-stage /app/dist /app
-#COPY nginx.conf /etc/nginx/nginx.conf
-
-# REPL as entrypoint
-CMD serve -s -l 8080 4-scratchpad/dist
