@@ -4,7 +4,7 @@
       <p class="sub-title">Output</p>
     </div>
     <div class="row flex-floating">
-      <code id="out-text" class="language-lisp code-text match-braces" contenteditable readonly>bla bla blasbla </code>
+      <code id="out-text" class="language-lisp code-text match-braces" readonly></code>
     </div>
   </div>
 </template>
@@ -17,6 +17,10 @@ const handleResponseText = function(responseText) {
   output().innerText = responseText
 }
 
+const informEvaluationStarted = function() {
+  output().innerText = "Evaluating..."
+}
+
 const handleError = function() {
   output().innerText = "Some internal error occured, Sorry! (server unreachable, unsupported characters, ...)"
 }
@@ -24,7 +28,8 @@ const handleError = function() {
 const exportedObject = {
   name: 'Result',
   handleResponseText: handleResponseText,
-  handleError: handleError
+  handleError: handleError,
+  informEvaluationStarted: informEvaluationStarted
 }
 
 window.ResultComponent = exportedObject

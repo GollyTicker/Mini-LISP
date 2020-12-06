@@ -2,13 +2,14 @@
   <div class="box">
     <div class="row flex-fixed">
       <p class="sub-title" style="float:left">Editor</p>
-      <p class="sub-title" style="float:right; font-size:0.9em">Ctrl+Enter or <button v-on:click="asyncRequestEvaluation">RUN</button></p>
+      <p class="sub-title" style="display: inline-block; font-size:0.8em"><button v-on:click="updateHighlighting">Re-Highlight</button></p>
+      <p class="sub-title" style="float:right; font-size:0.9em">&nbsp;&nbsp;Ctrl+Enter or <button v-on:click="asyncRequestEvaluation">RUN</button></p>
       <div style="clear: both"></div>
     </div>
     <div class="row flex-floating">
       <code id="edit-text" class="language-lisp code-text" contenteditable
             v-on:paste="pasteEvent"
-            v-on:keyup="updateHighlighting"></code>
+            tabindex="-1" v-on:focusout="updateHighlighting"></code>
 
       <!--
       It should be called on change. However doing that
@@ -32,60 +33,6 @@ const textIsUnchanged = function() {
   return currentText == previousText;
 }
 
-function setCaretPosition(elem, caretPos) {
-  console.log("Element: " + elem)
-  if(elem != null) {
-    if(elem.createTextRange) {
-      var range = elem.createTextRange();
-      console.log("Create text range: " + range)
-      range.move('character', caretPos);
-      console.log("position" + range.startOffset)
-      range.select();
-    }
-    else {
-      if(elem.selectionStart) {
-        console.log("selectionStart: ", elem.selectionStart)
-        elem.focus();
-        elem.setSelectionRange(caretPos, caretPos);
-      }
-      else {
-        console.log("Focused...")
-        elem.focus();
-      }
-    }
-  }
-}
-window.__setCaretPosition = setCaretPosition
-
-function numberOfCharactersUntilCaret(root, node, offset) {
-  console.log("===============================================================")
-  console.log("numberOfCharactersUntilCaret with <" + (root && root.nodeName) + ">" + " node: " + node + ", offset " + offset)
-  if (root != null) {
-    root.childNodes.forEach(child => {
-      var elementToInspect = null;
-      if (child.nodeName.toLowerCase() == "span") { /* prism formatted. try child text node */
-        //console.log("Found <span> with conent" + child.innerText + ", firstChild" + child.firstChild)
-        elementToInspect = child.firstChild
-      }
-      else if (child.nodeName.toLowerCase() == "#text") {
-        elementToInspect = child;
-      }
-      else {
-        //console.log("Ignore child with NodeName: " + child.nodeName.toLowerCase())
-      }
-
-      if(elementToInspect == node) {
-        console.log("!!!!!!!!!!!Found node!!!!!!!!!!!!!!!")
-      }
-    })
-    return [root,node,offset]
-  }
-  else {
-    console.log("Root is null.")
-    return 0;
-  }
-}
-
 export default {
   name: 'Editor',
   mounted() {
@@ -95,10 +42,13 @@ export default {
   methods: {
     asyncRequestEvaluation: function() {
       this.updateHighlighting()
+
       MiniLISP_HTTP.requestBackendEvaluation(
         editor().innerText,
         resultComponent().handleResponseText,
         resultComponent().handleError)
+
+      resultComponent().informEvaluationStarted()
     },
     pasteEvent(event) {
       let paste = (event.clipboardData || window.clipboardData).getData('text');
@@ -110,33 +60,14 @@ export default {
       selection.collapseToEnd()
 
       event.preventDefault();
-
-      /* TODO: updateHighlighting() */
     },
     updateHighlighting() {
       console.log("updateHighlighting: text " + (textIsUnchanged()?"is same":"HAS CHANGED"))
       if (textIsUnchanged()) return;
 
-      /* remember selection so that we can restore it.*/
-      const sel = window.getSelection()
-      const selectedNode = sel.anchorNode
-      console.log("Selection: anchorNode " + sel.anchorNode.nodeName + ", anchorOffset" + sel.anchorOffset +
-        ", focusNode" + sel.focusNode.nodeName + ", focusOffset " + sel.focusOffset)
-      console.log("Range count: " + sel.rangeCount + ", toString" + sel.toString())
-      const range = sel.getRangeAt(0)
-      console.log("Range: " + range.startOffset + " to " + range.endOffset)
-
-      numberOfCharactersUntilCaret(editor(),selectedNode,range.startOffset)
-
       /* currect user inserted whitespace. which gets lost with syntax highlighting */
       editor().textContent = editor().innerText
       window.Prism.highlightAll()
-
-      console.log("Selected node still exists?" + (selectedNode && selectedNode.nodeName))
-      // selectedNode.innerText = "DID YOU SEE THIS?"
-      // Node is still in background but not visible anymore...
-
-      // setCaretPosition(editor(),25)
 
       previousText = editor().innerText
     }
