@@ -1,1 +1,2 @@
-4-scratchpad/node_modules/
+**/node_modules
+**/dist

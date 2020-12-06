@@ -26,10 +26,10 @@ newFilename = reverse . drop (length ext) . reverse
 -- with the IO result of running f to the match
 processLineWith ::(String -> IO String) ->  String -> IO String
 processLineWith getSource s = do
-  let (pre,midrest) = span (/='¢') s
+  let (pre,midrest) = span (/='~') s
   if (not (null midrest))
     then do
-      let (sourcePath, _:rest) = span (/='¢') (tail midrest)
+      let (sourcePath, _:rest) = span (/='~') (tail midrest)
       str' <- getSource sourcePath
       rest' <- processLineWith getSource rest
       return $ pre ++ str' ++ rest'

@@ -42,8 +42,8 @@ export default {
 }
 
 // the .loader extension runs lisp-loader.hs which replaces
-// the string between the lined-c's with the content of that respective file
-const default_lisp = `¢src/assets/default.lisp¢`
+// the string between the tilde with the content of that respective file
+const default_lisp = `~src/assets/default.lisp~`
 
 const updateHighlighting = function() {
   /* currect user inserted whitespace. which gets lost with syntax highlighting */
