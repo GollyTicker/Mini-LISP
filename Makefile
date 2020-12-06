@@ -6,7 +6,7 @@ export LISP_HTTP_PORT = $(shell cat 3-HTTP/port.txt)
 export SCRATCHPAD_PORT = $(shell cat 4-scratchpad/port.txt)
 export EXPOSE_LISP := -p ${LISP_HTTP_PORT}:${LISP_HTTP_PORT}
 export EXPOSE_SCRATCHPAD := -p ${SCRATCHPAD_PORT}:${SCRATCHPAD_PORT}
-export DEFAULT_ARGS_NO_TTY := ${EXPORE_LISP} ${IMG}
+export DEFAULT_ARGS_NO_TTY := ${EXPOSE_LISP} ${IMG}
 export DEFAULT_ARGS := -it ${DEFAULT_ARGS_NO_TTY}
 export SCRATCHPAD_ARGS := ${EXPOSE_SCRATCHPAD} ${IMG}
 
