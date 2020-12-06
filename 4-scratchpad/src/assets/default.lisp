@@ -1,31 +1,26 @@
-; basics
-(define! test-var
-  'test-value)
-(define! ifelse '(lambda (b x y) (cond (b x) ('t y))))
-(define! U-comb '(lambda (f x) (f f x)))
-(define! null '(lambda (x) (eq x '())) )
-(define! not '(lambda (x) (ifelse x '() 't)) )
-(define! and '(lambda (a b) (ifelse a (ifelse b 't '()) '())) )
-(define! or '(lambda (a b) (not (and (not a) (not b)))))
+; Every expression will be evaluated and displayed on its own line.
+; A basic tutorial for and the list of primitives & functions: https://github.com/GollyTicker/LISP
 
-; list accessors
-(define! caar '(lambda (x) (car (car x))))
-(define! cadr '(lambda (x) (car (cdr x))))
-(define! cadar '(lambda (x) (car (cdr (car x)))))
-(define! caddr '(lambda (x) (car (cdr (cdr x)))))
+'====_Quotes_and_Atoms_====
+(quote a)
+'&%|take#a-*-look-@-me! ; an atom can be any ANSI string except whitespace and curly braces
 
-; list utilities
-(define! len '(lambda (xs) (ifelse (null xs) '0  (+ '1 (len (cdr xs))))))
-(define! unlist '(lambda (z f xs) (ifelse (null xs) z (f (car xs) (cdr xs)))))
-(define! foldr '(lambda (f z xs) (unlist z (lambda (x rs) (f x (foldr f z rs))) xs)))
-(define! append '(lambda (xs ys) (unlist ys (lambda (x rs) (cons x (append rs ys))) xs)))
-(define! map '(lambda (f xs) (foldr (lambda (x r) (cons (f x) r)) '() xs)))
-(define! assoc
-  '(lambda (k ps nl) ; inline-comments
-    (cond
-      ((null ps) nl)
-      ((eq k (caar ps)) (cadar ps))
-      ('t (assoc k (cdr ps) nl))
-    )
-  )
-)
+'======_Lists_=============
+(list '(a b c d) 'and (list (+ '1 '2) '4 '5) )
+
+'======_Conditionals_======= ; t is boolean truth and everything else is false
+(cond ('abc '1) ('t '1))
+
+'===_Definitions_and_inspections_=====
+(define! language 'MiniLISP)
+(define! swap '(lambda (x y) (list y x)) )
+(list language (swap '1 '2))
+(define! swap_expression swap) ; <- note the missing quote!
+(list 'accessed_definition_of_swap swap_expression)
+
+'======_Standard_Library_==== ; github.com/GollyTicker/LISP/blob/main/1-interpreter/standard-library.lisp
+(list 'append: (append '(1 2 3) '(4 5 6)))
+(list 'ifelse: (ifelse 't '1 '2))
+
+'====_play_around_with_me!_====
+'(hello world)

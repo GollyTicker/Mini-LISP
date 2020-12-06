@@ -3,7 +3,7 @@
     <div class="row flex-fixed">
       <p class="sub-title" style="float:left">Editor</p>
       <p class="sub-title" style="display: inline-block; font-size:0.8em"><button v-on:click="updateHighlighting">Re-Highlight</button></p>
-      <p class="sub-title" style="float:right; font-size:0.9em">&nbsp;&nbsp;Ctrl+Enter or <button v-on:click="asyncRequestEvaluation">RUN</button></p>
+      <p class="sub-title" style="float:right; font-size:0.9em">&nbsp;&nbsp;<button v-on:click="asyncRequestEvaluation">RUN</button></p>
       <div style="clear: both"></div>
     </div>
     <div class="row flex-floating">
@@ -67,7 +67,7 @@ export default {
 
       /* currect user inserted whitespace. which gets lost with syntax highlighting */
       editor().textContent = editor().innerText
-      window.Prism.highlightAll()
+      window.Prism.highlightElement(editor())
 
       previousText = editor().innerText
     }
