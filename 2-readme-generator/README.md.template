@@ -2,7 +2,7 @@
 
 A mini-LISP interpreter in C++ with a small standard library and an `eval` function which interprets same LISP expressions. [Try it online here!](http://159.89.30.219/)
 
-The purpose of this project was to develop a better understanding of some key features of LISP (e.g. [homoiconicity](https://en.wikipedia.org/wiki/Homoiconicity)) by writing an interpreter for it - and because it's fun to do so! I choose C++ since I wanted to improve my C++ skills - and because chosing simple constructs from C++ enables a better understanding than using higher level abstractions (e.g. Python objects). Writing an interpreter also allows one to experiment with variations which are not implemented in standard implementations of LISP. The interpreter is slightly different than comparable full implementations of LISP such as GNU clisp and these are documented below. During implementation I was mostly going along the lines of [The Roots of LISP](http://languagelog.ldc.upenn.edu/myl/llog/jmc.pdf).
+The purpose of this project was to develop a better understanding of some key features of LISP (e.g. [homoiconicity](https://en.wikipedia.org/wiki/Homoiconicity)) by writing an interpreter for it - and because it's fun to do so! I choose C++ since I wanted to improve my C++ skills - and because chosing simple constructs from C++ enables a better understanding than using higher level abstractions (e.g. Python objects). Writing an interpreter also allows one to experiment with variations which are not implemented in standard implementations of LISP. The interpreter is slightly different than comparable full implementations of LISP such as GNU clisp and these are documented below. During implementation I was mostly going along the lines of [The Roots of LISP](http://languagelog.ldc.upenn.edu/myl/llog/jmc.pdf). Finally, I exposed the interpreter in a [scratchpad environment](http://159.89.30.219/) to make it better accessible.
 
 ### Mini-LISP interpreter in C++
 The interpreter comes with the following primitives:
@@ -18,7 +18,7 @@ The interpreter comes with the following primitives:
 * `environment`
 * `+` and `decr`
 
-Examples for the usage of the primitives and a standard-library of functions can be found in section [Example expressions](#Example expressions). The standard-library implementation can be found [here](https://github.com/GollyTicker/Mini-LISP/blob/main/1-interpreter/standard-library.lisp).
+Examples for the usage of the primitives and a standard-library of functions can be found in section [Example expressions](#example-expressions). The standard-library implementation can be found [here](https://github.com/GollyTicker/Mini-LISP/blob/main/1-interpreter/standard-library.lisp).
 
 ### Definitions
 * `(quote x)` returns `x`
