@@ -143,9 +143,16 @@ void add_standard_library(Env& env) {
   interpret_file_string(std_defs, env);
 }
 
+void provide_primitive_atoms(Env& e, vector<string>& atoms) {
+  for (string &x: atoms) {
+    e.insert({x, at("#primitive-" + x + "#")});
+  }
+}
+
 Env init_interpreter() {
-  add_primitives();
+  vector<string> predefined_atoms = add_primitives();
   Env e;
+  provide_primitive_atoms(e, predefined_atoms);
   add_standard_library(e);
   return e;
 }

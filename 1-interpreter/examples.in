@@ -95,6 +95,10 @@ U-comb
 -- define
 (define a 'b (define s (car '(1 2 3)) (list a s) ) )
 
+-- primitives
+quote
+atom
+
 -- standard library
 (null 'a)
 (null '())
@@ -140,10 +144,9 @@ U-comb
 (substitute 'a '(0 1) '(lambda (0 a b) (list 0 a b)))
 (substitute 'list 'd '(lambda (0 a b) (list 0 a b)))
 
--- label
-
--- quasiquotation. TODO: syntax
--- (qq (a (unquote (car '(b c d))) c))
+-- homoiconicity
+(define expr '(+ '1 '2 '3) (eval expr '()))
+(define expr '(+ '1 '2 '3) (eval (set-head 'list expr) '()))
 
 -- eval
 (eval 'a '())

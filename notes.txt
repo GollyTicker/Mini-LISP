@@ -1,6 +1,6 @@
-* Perhaps we could also implement a variant of lisp, where evaluation of an unknown symbol just stay the symbol itself (like in Wolfram Mathematica).
+* Perhaps we could also implement a variant of lisp, where evaluation of an unknown symbol just stay the symbol itself (like in Wolfram Mathematica)
 
-* bootstraping thecompiler in the sense, that we can use rewritings to update the language implementation would be a cool idea. it would make it independent of C++ !
+* bootstraping the compiler in the sense, that we can use rewritings to update the language implementation would be a cool idea. it would make it independent of C++ !
 
 * as a note to the parallel flowboard project:
   lisp offers quasiquoting for generating code.
@@ -11,37 +11,7 @@
   via == is cumbersome and not the best we can achieve.
   primary inspiration is scalas pattern matching and PROLOGs matching.
 
-* optimization with -O3
-
 * profiling with: g++ -pg MiniLISP.cpp -o MiniLISP && echo "(...)" | ./MiniLISP | gprof MiniLISP gmon.out | head -n 50
 
-* use weak_ptr to memoize results of eval and store it in a map.
-  weak_ptr doesn't contribute to reference count and keeps
-  garbage collection enabled for shared pointers.
-
-* add node dependency:
-  * install node: ?
-  * install vue cli: npm install -g @vue/cli
-  * (once): vue create scratchpad
-    * Vue 3
-    * NPM
-    * in 4-scratchpad: npm run serve
-      ## Project setup
-      ```
-      npm install
-      ```
-      ### Compiles and hot-reloads for development
-      ```
-      npm run serve
-      ```
-      ### Compiles and minifies for production
-      ```
-      npm run build
-      ```
-      ### Lints and fixes files
-      ```
-      npm run lint
-      ```
-    * `npm install raw-loader --save-dev`
-
 * TODO: collect lisence information (especially license notices...)
+* TODO: put repl into separate smaller docker container for faster building?

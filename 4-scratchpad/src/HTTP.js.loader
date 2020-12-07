@@ -1,6 +1,6 @@
 
 const HTTP_REQUEST_TIMEOUT_MS = 1000+~../3-HTTP/timeout-ms.txt~
-const serverAddr = "159.89.30.219"
+const serverAddr = "localhost" //"159.89.30.219"
 const miniLISPInterpreterURL = "http://"+serverAddr+":3000/MiniLISP/file"
 var mostRecentRequest = null;
 

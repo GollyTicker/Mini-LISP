@@ -95,6 +95,10 @@ test-value
 -- define
 (b 1)
 
+-- primitives
+#primitive-quote#
+#primitive-atom#
+
 -- standard library
 ()
 t
@@ -140,7 +144,9 @@ c
 (lambda (0 a b) (list 0 a b))
 (lambda (0 a b) (d 0 a b))
 
--- label
+-- homoiconicity
+6
+(1 2 3)
 
 -- eval
 (error undefined-atom a)

@@ -10,6 +10,7 @@
 
 '======_Conditionals_======= ; t is boolean truth and everything else is false
 (cond ('abc '1) ('t '1))
+((cond ('() '+) ('t 'car)) '(a b c)) ; the function itself can be computed
 
 '===_Definitions_and_inspections_=====
 (define! language 'MiniLISP)

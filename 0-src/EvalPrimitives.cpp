@@ -1,10 +1,14 @@
 #include<set>
+#include<vector>
 #include<memory>
 
 pAST lisp_true = (pAST) at("t");
 pAST lisp_false = (pAST) nl;
 
 map<string,evalProc*> predefs;
+
+template<typename K, typename V>
+vector<K> extract_keys(map<K, V> const& input_map);
 
 /* NOTE: in the implementation of substitute, we need to take care of
 quote and stop substitution. */
@@ -307,7 +311,7 @@ pAST prim_standalone_lambda(pList expr, Env& env) {
   throw logic_error("Cannot evaluate standalone primitive lambda with " + expr->lisp_string());
 }
 
-void add_primitives() {
+vector<string> add_primitives() {
   if (predefs.size() == 0){
     predefs.insert({"quote",&prim_quote});
     predefs.insert({"atom",&prim_atom});
@@ -324,4 +328,14 @@ void add_primitives() {
     predefs.insert({"list",&prim_list});
     predefs.insert({"environment",&prim_environment});
   }
+
+  return extract_keys(predefs);
+}
+
+template<typename K, typename V>
+vector<K> extract_keys(map<K, V> const& input_map) {
+  vector<K> retval;
+  for (auto const& element : input_map)
+    retval.push_back(element.first);
+  return retval;
 }

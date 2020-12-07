@@ -4,7 +4,7 @@ A mini-LISP interpreter in C++ with a small standard library and an `eval` funct
 
 The purpose of this project was to develop a better understanding of some key features of LISP (e.g. [homoiconicity](https://en.wikipedia.org/wiki/Homoiconicity)) by writing an interpreter for it - and because it's fun to do so! I choose C++ since I wanted to improve my C++ skills - and because chosing simple constructs from C++ enables a better understanding than using higher level abstractions (e.g. Python objects). Writing an interpreter also allows one to experiment with variations which are not implemented in standard implementations of LISP. The interpreter is slightly different than comparable full implementations of LISP such as GNU clisp and these are documented below. During implementation I was mostly going along the lines of [The Roots of LISP](http://languagelog.ldc.upenn.edu/myl/llog/jmc.pdf).
 
-### mini-LISP interpreter in C++
+### Mini-LISP interpreter in C++
 The interpreter comes with the following primitives:
 * `quote`
 * `atom`
@@ -14,19 +14,25 @@ The interpreter comes with the following primitives:
 * `cons` (and it's abbreviation `list`)
 * `cond`
 * `lambda`
-* variable binding with `define` + global definitions with `define!`
-* `environment` (returns all global global definitions)
-* `+` and `decr` (convenience for example numerical functions)
-* `quasiquotation` (?)
+* `define` + global `define!`
+* `environment`
+* `+` and `decr`
 
-Look at the [Example expressions](#Example expressions) section to see a list of implemented primitives and standard-library functions. The standard-library implementation can be found [here](https://github.com/GollyTicker/LISP/blob/main/1-interpreter/standard-library.lisp).
+Examples for the usage of the primitives and a standard-library of functions can be found in section [Example expressions](#Example expressions). The standard-library implementation can be found [here](https://github.com/GollyTicker/LISP/blob/main/1-interpreter/standard-library.lisp).
 
-### TODOs
-* add *homoiconicity* example
-  * access implementations via `(define ast my-func ...)` e.g. `(define ast null ast) => (lambda (x) (eq x (quote ())))`
-    * should we also show implementations for primitives like `cond` etc?
-    * shall we enable changing them?
-  * use functions and quasiquotation to create computed expressions
+### Definitions
+* `(quote x)` returns `x`
+* `(atom x)` is `t` if and only if `x` is an atom
+* `(eq x y)` is `t` if and only if `x` and `y` are equal atoms or both the empty list `()`
+* `(car xs)` / `(cdr xs)` return the head / tail of the list `xs`
+* `(cons x xs)` creates a new list with head `x` and tail `xs`
+  * `(list a b ... z)` is shortform for `(cons a (cons b (... (cons z '()) ...)))`
+* `((lambda (var1 ... varN) body) arg1 ... argM)` with `N` <= `M` is evaluated by sequentially evaluating the arguments `arg1 ... argN` and replacing every occurence of `var1` to `varN` in `body` with the evaluated forms of the arguments. `var1` to `varN` are atoms.
+* `(define k v body)` replaces every occurence of `k` in `body` with the evaluated form of `v`.
+  * `(define! k v)` binds the evaluated form of `v` to the atom `k` globally. This should **only** be used for top-level definitions! It returns with the evaluated form of `v`
+* `environment` returns an association list of of all current bindings
+* `(+ x1 ... xN)` interprets all atoms `x1` to `xN` as integers and returns their sum as an atom
+  * `(decr n)` returns `n-1` as an atom
 
 ### Features
 * a function `eval` written in MiniLISP which can emulates MiniLISP itself (in `standard_library.lisp`)
@@ -42,6 +48,13 @@ Look at the [Example expressions](#Example expressions) section to see a list of
   * for example, we can run `(lambda (f x) (f f x)) '(lambda (f n) (cond ((eq n '0) '0) ('t (+ n (f f (decr n)))))) '3)` to compute the sum of the first `n=3` integers. it corresponds to the lambda expression `(λf. λx. f f x) (λf. λn. if n == 0 then 0 else n + (f f (n-1)))`
   * Such definitions are not possible in GNU clisp due to it's head being itself a function
 * a small *standard library* can be found in `standard-library.lisp`
+* we can easily *rewrite expressions*. The following code snippet demonstrates this.
+```
+(define! expr '(+ '1 '2 '3))         ; => (+ (quote 1) (quote 2) (quote 3))
+(eval expr '())                      ; => 6
+(define! expr (set-head 'list expr)) ; => (list (quote 1) (quote 2) (quote 3))
+(eval expr '())                      ; (1 2 3)
+```
 
 ### Installation & Usage
 1. Please ensure you have a linux system with [Docker](https://docs.docker.com/get-docker/) installed
@@ -127,6 +140,8 @@ For further debugging purposes, one can use `make docker-bash` to build and conn
 * :)  `test-var => test-value`
 * :)  `U-comb => (lambda (f x) (f f x))`
 * :)  `(define a 'b (define s (car '(1 2 3)) (list a s) ) ) => (b 1)`
+* :)  `quote => #primitive-quote#`
+* :)  `atom => #primitive-atom#`
 * :)  `(null 'a) => ()`
 * :)  `(null '()) => t`
 * :)  `'#ignore-embed-eval-following# => #ignore-embed-eval-following#`
@@ -170,6 +185,8 @@ For further debugging purposes, one can use `make docker-bash` to build and conn
 * :)  `(substitute 'a '(0 1) ''(0 a a)) => (quote (0 a a))`
 * :)  `(substitute 'a '(0 1) '(lambda (0 a b) (list 0 a b))) => (lambda (0 a b) (list 0 a b))`
 * :)  `(substitute 'list 'd '(lambda (0 a b) (list 0 a b))) => (lambda (0 a b) (d 0 a b))`
+* :)  `(define expr '(+ '1 '2 '3) (eval expr '())) => 6`
+* :)  `(define expr '(+ '1 '2 '3) (eval (set-head 'list expr) '())) => (1 2 3)`
 * :)  `(eval 'a '()) => (error undefined-atom a)`
 * :)  `(eval 'a '((a 1))) => 1`
 * :)  `(eval '() '()) => (error empty-list-eval)`
@@ -249,6 +266,8 @@ For further debugging purposes, one can use `make docker-bash` to build and conn
 * :)  ` (eval 'test-var (environment)) => test-value`
 * :)  ` (eval 'U-comb (environment)) => (lambda (f x) (f f x))`
 * :)  ` (eval '(define a 'b (define s (car '(1 2 3)) (list a s) ) ) (environment)) => (b 1)`
+* :)  ` (eval 'quote (environment)) => #primitive-quote#`
+* :)  ` (eval 'atom (environment)) => #primitive-atom#`
 * :)  ` (eval '(null 'a) (environment)) => ()`
 * :)  ` (eval '(null '()) (environment)) => t`
 * *+++ All tests passed! +++*`

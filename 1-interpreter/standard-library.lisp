@@ -13,6 +13,8 @@
 (define! cadr '(lambda (x) (car (cdr x))))
 (define! cadar '(lambda (x) (car (cdr (car x)))))
 (define! caddr '(lambda (x) (car (cdr (cdr x)))))
+(define! head 'car)
+(define! tail 'cdr)
 
 ; list utilities
 (define! len '(lambda (xs) (ifelse (null xs) '0  (+ '1 (len (cdr xs))))))
@@ -31,9 +33,6 @@
     )
   )
 )
-
-; quasiquotation
-(define! qq 'TODO-define-quasiquotation)
 
 ; helper functions for eval
 (define! is-quote '(lambda (e) (and (not (atom e)) (eq (car e) 'quote))))
@@ -103,3 +102,8 @@
     )
   )
 )
+
+; set-head for homoiconicity example
+(define! set-head '(lambda (new-head expr)
+ (cons new-head (cdr expr))
+))
