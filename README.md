@@ -18,7 +18,7 @@ The interpreter comes with the following primitives:
 * `environment`
 * `+` and `decr`
 
-Examples for the usage of the primitives and a standard-library of functions can be found in section [Example expressions](#Example expressions). The standard-library implementation can be found [here](https://github.com/GollyTicker/LISP/blob/main/1-interpreter/standard-library.lisp).
+Examples for the usage of the primitives and a standard-library of functions can be found in section [Example expressions](#Example expressions). The standard-library implementation can be found [here](https://github.com/GollyTicker/Mini-LISP/blob/main/1-interpreter/standard-library.lisp).
 
 ### Definitions
 * `(quote x)` returns `x`

@@ -1,5 +1,5 @@
 ; Every expression will be evaluated and displayed on its own line.
-; A basic tutorial for and the list of primitives & functions: https://github.com/GollyTicker/LISP#readme
+; A basic tutorial for and the list of primitives & functions: https://github.com/GollyTicker/Mini-LISP#readme
 
 '====_Quotes_and_Atoms_====
 (quote a)
@@ -19,7 +19,7 @@
 (define! swap_expression swap) ; <- note the missing quote!
 (list 'accessed_definition_of_swap swap_expression)
 
-'======_Standard_Library_==== ; github.com/GollyTicker/LISP/blob/main/1-interpreter/standard-library.lisp
+'======_Standard_Library_==== ; github.com/GollyTicker/Mini-LISP/blob/main/1-interpreter/standard-library.lisp
 (list 'append: (append '(1 2 3) '(4 5 6)))
 (list 'ifelse: (ifelse 't '1 '2))
 
