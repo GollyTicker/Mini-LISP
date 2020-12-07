@@ -2,6 +2,9 @@
   <div class="box">
     <div id="top-bar" class="row flex-fixed">
       <h1>MiniLISP Scratchpad</h1>
+      <span>
+        <a :href="intro_readme_url" target="_blank">Introduction README</a> # <a :href="std_lib_url" target="_blank"> standard-libarary.lisp</a>
+      </span>
     </div>
 
     <div id="content-bar" class="row flex-floating">
@@ -42,6 +45,12 @@ export default {
     Result,
 
     Splitpanes, Pane
+  },
+  data() {
+    return {
+      intro_readme_url: "https://github.com/GollyTicker/Mini-LISP#readme",
+      std_lib_url: "https://github.com/GollyTicker/Mini-LISP/blob/main/1-interpreter/standard-library.lisp"
+    }
   }
 }
 </script>
@@ -122,6 +131,23 @@ p.sub-title, span.sub-title {
   font-size: 0.9em !important;
   border: 1.5px solid white;
   white-space: pre-wrap !important; /* override prism syntax highlighting */
+}
+
+#top-bar {
+  margin: 0.3em;
+}
+
+#top-bar h1, #top-bar span {
+  margin: inherit;
+}
+
+a:link, a:visited, a:active {
+  color: #aca0f5;
+  background-color: inherit;
+}
+
+a:hover {
+  color: inherit;
 }
 
 </style>
