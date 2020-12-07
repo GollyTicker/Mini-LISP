@@ -1,5 +1,5 @@
 ; Every expression will be evaluated and displayed on its own line.
-; A basic tutorial for and the list of primitives & functions: https://github.com/GollyTicker/LISP
+; A basic tutorial for and the list of primitives & functions: https://github.com/GollyTicker/LISP#readme
 
 '====_Quotes_and_Atoms_====
 (quote a)

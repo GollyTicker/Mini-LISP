@@ -12,6 +12,3 @@
   primary inspiration is scalas pattern matching and PROLOGs matching.
 
 * profiling with: g++ -pg MiniLISP.cpp -o MiniLISP && echo "(...)" | ./MiniLISP | gprof MiniLISP gmon.out | head -n 50
-
-* TODO: collect lisence information (especially license notices...)
-* TODO: put repl into separate smaller docker container for faster building?
