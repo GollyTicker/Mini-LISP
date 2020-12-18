@@ -16,11 +16,15 @@ main = do
 processFile filePath =
   do
     str <- readFile filePath
-    str' <- mapM (processLineWith readFile) (lines str)
-    -- DEBUG: mapM_ putStrLn str'
+    str' <- mapM (processLineWith readFileWithoutFinalNewline) (lines str)
+    -- mapM_ putStrLn str'-- DEBUG:
     writeFile (newFilename filePath) (unlines str')
 
 newFilename = reverse . drop (length ext) . reverse
+
+readFileWithoutFinalNewline f =
+  do  str <- readFile f
+      return $ foldr (\e r -> if (e:r) == "\n" then [] else e:r) [] str
 
 -- processLineWith f str returns a function which replaces the match in str
 -- with the IO result of running f to the match

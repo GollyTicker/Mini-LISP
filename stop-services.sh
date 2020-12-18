@@ -1,1 +1,1 @@
-docker stop minilisp-http minilisp-scratchpad
+make shutdown

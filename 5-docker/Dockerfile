@@ -36,7 +36,8 @@ RUN 1-interpreter/compile-cpp.sh
 COPY 2-readme-generator 2-readme-generator
 COPY 3-HTTP 3-HTTP
 COPY 4-scratchpad 4-scratchpad
-COPY Makefile ./
-
 # frontend
 RUN (cd 4-scratchpad && npm run build)
+
+# build instructions for internal testing
+COPY Makefile ./
