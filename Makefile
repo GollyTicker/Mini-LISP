@@ -15,7 +15,8 @@ export SCRATCHPAD_CMD := serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
 build:
 	docker build -f 5-docker/Dockerfile -t ${IMG} .
 
-docker-compose: build
+docker-compose:
+	docker-compose -f 5-docker/docker-compose.yml rm
 	docker-compose -f 5-docker/docker-compose.yml up -d
 
 shutdown:
