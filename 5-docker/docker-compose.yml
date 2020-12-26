@@ -15,3 +15,17 @@ services:
     ports:
       - ${LISP_HTTP_PORT}:${LISP_HTTP_PORT}
     command: runhaskell 3-HTTP/HTTP.hs
+
+  nginx-service:
+    image: ${NGINX_IMG}
+    build:
+      context: ${PROJECT_ROOT}
+      dockerfile: ${PROJECT_ROOT}/5-docker/Dockerfile-nginx
+    container_name: nginx-service
+    ports:
+      - "80:80"
+    #volumes:
+      # - web-root:/var/www/html
+      # - ${PWD}/../6-web-publish/nginx-conf.d:/etc/nginx/conf.d
+      # - certbot-etc:/etc/letsencrypt
+      # - certbot-var:/var/lib/letsencrypt

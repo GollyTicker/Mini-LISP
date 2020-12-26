@@ -35,7 +35,7 @@ Examples for the usage of the primitives and a standard-library of functions can
   * `(decr n)` returns `n-1` as an atom
 
 ### Features
-* a function `eval` written in MiniLISP which can emulates MiniLISP itself (in `standard_library.lisp`)
+* a function `eval` written in MiniLISP which can emulate MiniLISP itself (in `standard_library.lisp`)
 * *memory management* of LISP expressions via C++ `shared_ptr` in `0-AST.cpp`
 * *garbage collection* of memoised but unreferenced expressions
 * *memoisation* of the evaluated from of expressions via `weak_ptr` in `0-Eval.cpp`. Memoisation is possibe, since all lisp ASTs are mere expressions which don't change state. (`define!` is only meant for top-level bindings)

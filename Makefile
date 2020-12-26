@@ -2,6 +2,7 @@ export IMG := minilisp:v1
 export TESTER := minilisp-tester
 export LISP_HTTPER := minilisp-http
 export SCRATCHPADER := minilisp-scratchpad
+export NGINX_IMG := nginx-img:v1
 export LISP_HTTP_PORT := $(shell cat 3-HTTP/port.txt)
 export SCRATCHPAD_PORT := $(shell cat 4-scratchpad/port.txt)
 export EXPOSE_LISP := -p ${LISP_HTTP_PORT}:${LISP_HTTP_PORT}
@@ -11,11 +12,17 @@ export DEFAULT_ARGS := -it ${DEFAULT_ARGS_NO_TTY}
 export SCRATCHPAD_ARGS := ${EXPOSE_SCRATCHPAD} ${IMG}
 export LISP_HTTP_CMD := runhaskell 3-HTTP/HTTP.hs
 export SCRATCHPAD_CMD := serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
+export PROJECT_ROOT := $(shell pwd)
 
 build:
 	docker build -f 5-docker/Dockerfile -t ${IMG} .
 
+
+# Usage: make docker-compose args="up -d my_container"
 docker-compose:
+	docker-compose -f 5-docker/docker-compose.yml $(args)
+
+restart:
 	docker-compose -f 5-docker/docker-compose.yml rm
 	docker-compose -f 5-docker/docker-compose.yml up -d
 
