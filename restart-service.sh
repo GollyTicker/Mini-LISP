@@ -1,2 +1,2 @@
-./stop-services.sh 2> /dev/null > /dev/null
+./stop-services.sh
 nohup make docker-compose > /dev/null &

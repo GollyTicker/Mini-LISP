@@ -16,8 +16,8 @@ build:
 	docker build -f 5-docker/Dockerfile -t ${IMG} .
 
 docker-compose:
-	docker-compose -f 5-docker/docker-compose.yml rm
-	docker-compose -f 5-docker/docker-compose.yml up -d
+	docker-compose -f 5-docker/docker-compose.yml rm -f
+	docker-compose -f 5-docker/docker-compose.yml up --build -d
 
 shutdown:
 	docker-compose -f 5-docker/docker-compose.yml down
