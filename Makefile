@@ -17,9 +17,10 @@ export SCRATCHPAD_CMD := serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
 # Steps to deploy onto server
 # 0. write <user>@<server-hostname> into private-login.txt
 # 1. locally build locally: make build
-# 2. deploy image to server: make deploy-image-to-server
-# 3. on server load image from disk: make load-image-from-disk
-# 3. on server start app: ./restart-server.sh
+# 2. local save image to disk: make same-image-to-disk
+# 3. deploy image to server: make deploy-image-to-server
+# 4. on server load image from disk: make load-image-from-disk
+# 5. on server start app: ./restart-server.sh
 
 build:
 	docker build -f 5-docker/Dockerfile -t ${IMG} .
