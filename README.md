@@ -58,11 +58,11 @@ Examples for the usage of the primitives and a standard-library of functions can
 
 ### Installation & Usage
 1. Please ensure you have a linux system with [Docker](https://docs.docker.com/get-docker/) installed
-2. (Install cmake for Makefile)
-3. Clone this repository
-4. Run ```make repl``` to build the docker image and run the MiniLISP REPL locally
-5. Run ```make docker-scratchpad``` to run a local frontend at `http://localhost:80`
-5. To check that all tests pass: `make test`
+1. (Install cmake for Makefile)
+1. Clone this repository
+1. Run ```make repl``` to build the docker image and run the MiniLISP REPL locally
+1. Run ```make docker-scratchpad``` to run a local frontend at `http://localhost:80`
+1. To check that all tests pass: `make test`
 
 For further debugging purposes, one can use `make docker-bash` to build and connect to a terminal in the container. The server can be run via `make docker-server` at the port in `5-HTTP-port.txt`
 

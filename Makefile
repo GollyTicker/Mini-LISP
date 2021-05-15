@@ -1,4 +1,5 @@
 export IMG := minilisp:v1
+export IMG_FILE := minilisp_v1.tar.gz
 export TESTER := minilisp-tester
 export LISP_HTTPER := minilisp-http
 export SCRATCHPADER := minilisp-scratchpad
@@ -12,10 +13,31 @@ export SCRATCHPAD_ARGS := ${EXPOSE_SCRATCHPAD} ${IMG}
 export LISP_HTTP_CMD := runhaskell 3-HTTP/HTTP.hs
 export SCRATCHPAD_CMD := serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
 
+
+# Steps to deploy onto server
+# 0. write <user>@<server-hostname> into private-login.txt
+# 1. locally build locally: make build
+# 2. deploy image to server: make deploy-image-to-server
+# 3. on server load image from disk: make load-image-from-disk
+# 3. on server start app: ./restart-server.sh
+
 build:
 	docker build -f 5-docker/Dockerfile -t ${IMG} .
 
-docker-compose: build
+save-image-to-disk: build
+	@echo "Saving image to disk.... (takes a few minutes)"
+	docker save ${IMG} | gzip > ${IMG_FILE}
+	@echo "Done."
+
+deploy-image-to-server: # save-image-to-disk
+	scp ${IMG_FILE} $$(cat private-login.txt):~/Mini-LISP/
+
+load-image-from-disk:
+	@echo "Loading image from disk.... (takes a few minutes)"
+	gzip -d --stdout ${IMG_FILE} | docker load
+	@echo "Done."
+
+docker-compose:
 	docker-compose -f 5-docker/docker-compose.yml rm -f
 	docker-compose -f 5-docker/docker-compose.yml up --build -d
 
@@ -30,7 +52,7 @@ docker-server: build
 	docker run --rm ${DEFAULT_ARGS} runhaskell 3-HTTP/HTTP.hs
 
 # production docker server. find logs via $ docker logs minilisp-http
-docker-server-prod: build
+docker-server-prod:
 	docker rm -f ${LISP_HTTPER} 2> /dev/null > /dev/null || true
 	docker run --name ${LISP_HTTPER} ${DEFAULT_ARGS_NO_TTY} ${LISP_HTTP_CMD}
 
