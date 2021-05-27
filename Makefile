@@ -13,6 +13,7 @@ export SCRATCHPAD_ARGS := ${EXPOSE_SCRATCHPAD} ${IMG}
 export LISP_HTTP_CMD := runhaskell 3-HTTP/HTTP.hs
 export SCRATCHPAD_CMD := serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
 
+export BACKEND_DOMAIN_NAME := swaneet.eu
 
 # Steps to deploy onto server
 # 0. write <user>@<server-hostname> into private-login.txt
@@ -23,6 +24,7 @@ export SCRATCHPAD_CMD := serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
 # 5. on server start app: ./restart-server.sh
 
 build:
+	dig @resolver4.opendns.com ${BACKEND_DOMAIN_NAME} +short > 3-HTTP/http-backend-address.txt
 	docker build -f 5-docker/Dockerfile -t ${IMG} .
 
 save-image-to-disk: build
