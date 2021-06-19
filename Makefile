@@ -12,6 +12,8 @@ export DEFAULT_ARGS := -it ${DEFAULT_ARGS_NO_TTY}
 export SCRATCHPAD_ARGS := ${EXPOSE_SCRATCHPAD} ${IMG}
 export LISP_HTTP_CMD := runhaskell 3-HTTP/HTTP.hs
 export SCRATCHPAD_CMD := serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
+export USE_COMPOSE := -f 5-docker/docker-compose.yml
+export USE_COMPOSE_DEV := -f 5-docker/docker-compose-dev.yml
 
 export BACKEND_DOMAIN_NAME := swaneet.eu
 
@@ -23,8 +25,13 @@ export BACKEND_DOMAIN_NAME := swaneet.eu
 # 4. on server load image from disk: make load-image-from-disk
 # 5. on server start app: ./restart-server.sh
 
-build:
+readme:
+	./2-readme-generator/generate-readme.sh
+
+save-backend-address:
 	dig @resolver4.opendns.com ${BACKEND_DOMAIN_NAME} +short > 3-HTTP/http-backend-address.txt
+
+build: save-backend-address
 	docker build -f 5-docker/Dockerfile -t ${IMG} .
 
 save-image-to-disk: build
@@ -41,8 +48,12 @@ load-image-from-disk:
 	@echo "Done."
 
 docker-compose:
-	docker-compose -f 5-docker/docker-compose.yml rm -f
-	docker-compose -f 5-docker/docker-compose.yml up --build -d
+	docker-compose ${USE_COMPOSE} rm -f
+	docker-compose ${USE_COMPOSE} up --build -d
+
+docker-compose-dev:
+	docker-compose ${USE_COMPOSE} ${USE_COMPOSE_DEV} rm -f
+	docker-compose ${USE_COMPOSE} ${USE_COMPOSE_DEV} up --build -d
 
 shutdown:
 	docker-compose -f 5-docker/docker-compose.yml down

@@ -1,0 +1,7 @@
+version: "3.9"
+
+services:
+
+  minilisp-scratchpad:
+    ports:
+      - ${SCRATCHPAD_PORT}:${SCRATCHPAD_PORT}

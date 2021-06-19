@@ -5,7 +5,7 @@ services:
   minilisp-scratchpad:
     image: ${IMG}
     container_name: ${SCRATCHPADER}
-    command: serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
+    command: ${SCRATCHPAD_CMD}
     networks:
       - minilisp-net
 
@@ -14,7 +14,7 @@ services:
     container_name: ${LISP_HTTPER}
     ports:
       - ${LISP_HTTP_PORT}:${LISP_HTTP_PORT}
-    command: runhaskell 3-HTTP/HTTP.hs
+    command: ${LISP_HTTP_CMD}
     networks:
       - minilisp-net
 

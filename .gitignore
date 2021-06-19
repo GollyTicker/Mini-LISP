@@ -2,3 +2,4 @@ bin/*
 deployment-notes.txt
 *private-login*
 *.tar.gz
+cmd-out
