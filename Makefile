@@ -19,11 +19,10 @@ export BACKEND_DOMAIN_NAME := swaneet.eu
 
 # Steps to deploy onto server
 # 0. write <user>@<server-hostname> into private-login.txt
-# 1. locally build locally: make build
-# 2. local save image to disk: make same-image-to-disk
-# 3. deploy image to server: make deploy-image-to-server
-# 4. on server load image from disk: make load-image-from-disk
-# 5. on server start app: ./restart-server.sh
+# 1. locally build image and save image to disk: make save-image-to-disk
+# 2. deploy image to server: make deploy-image-to-server
+# 3. on server load image from disk: make load-image-from-disk
+# 4. on server start app: ./restart-server.sh
 
 readme:
 	./2-readme-generator/generate-readme.sh
