@@ -73,6 +73,7 @@ To debug locally:
 * set `publicPath` in vue.config.js to `/`
 * set `3-HTTP/http-backend-address.txt` to `localhost`
 * set `3-HTTP/http-backend-path` to an empty string
+* set `3-HTTP/public-port.txt` to `3-HTTP/port.txt`
 and then run `make build && ./restart-service.sh --dev` to start all services in dev mode.
 
 This readme can be generated via `make readme`.
