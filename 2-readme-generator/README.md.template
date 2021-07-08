@@ -66,9 +66,14 @@ Examples for the usage of the primitives and a standard-library of functions can
 
 To deploy locally, run `./restart-service.sh`.
 
-For further debugging purposes, one can use `make docker-bash` to build and connect to a terminal in the container. The server can be run via `make docker-server` at the port in `5-HTTP-port.txt`.
+For further debugging purposes, one can use `make docker-bash` to build and connect to a terminal in the container. The server can be run via `make docker-server` at the port in `3-HTTP/port.txt`.
 
-To debug, set `publicPath` in vue.config.js to `/`, Then run ./restart-service.sh --dev` to start all services in dev mode.
+To debug locally:
+* in Makefile comment out the build dependency `save-backend-address` for the rule `build`
+* set `publicPath` in vue.config.js to `/`
+* set `3-HTTP/http-backend-address.txt` to `localhost`
+* set `3-HTTP/http-backend-path` to an empty string
+and then run `make build && ./restart-service.sh --dev` to start all services in dev mode.
 
 This readme can be generated via `make readme`.
 

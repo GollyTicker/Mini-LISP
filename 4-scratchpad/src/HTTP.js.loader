@@ -1,7 +1,10 @@
 
-const HTTP_REQUEST_TIMEOUT_MS = 1000+~../3-HTTP/timeout-ms.txt~
+const HTTP_REQUEST_TIMEOUT_MS = 1000 + ~../3-HTTP/timeout-ms.txt~
+const publicPort = "~../3-HTTP/public-port.txt~"
+// goes against deployed nginx, if configured against production
 const serverAddr = "~../3-HTTP/http-backend-address.txt~"
-const miniLISPInterpreterURL = "http://"+serverAddr+":3000/MiniLISP/file"
+const path = "~../3-HTTP/http-backend-path.txt~"
+const miniLISPInterpreterURL = "http://"+serverAddr+":"+publicPort+path+"/file"
 var mostRecentRequest = null;
 
 const HTTPRequest = function (type, url, callback) {
