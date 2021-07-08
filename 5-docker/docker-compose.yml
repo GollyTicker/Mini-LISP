@@ -12,8 +12,6 @@ services:
   minilisp-http:
     image: ${IMG}
     container_name: ${LISP_HTTPER}
-    ports:
-      - ${LISP_HTTP_PORT}:${LISP_HTTP_PORT}
     command: ${LISP_HTTP_CMD}
     networks:
       - minilisp-net
