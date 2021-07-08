@@ -31,7 +31,7 @@ main = do
 app :: Int -> App ()
 app timeout = do
   route "/health" healthHandler
-  route "/MiniLISP/file" (fileHandler timeout)
+  route "/file" (fileHandler timeout)
 
 getPort :: IO Int
 getPort = (\x -> read x :: Int) <$> readFile "3-HTTP/port.txt"

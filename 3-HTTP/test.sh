@@ -6,8 +6,8 @@ make docker-server-no-tty 2> /dev/null > /dev/null &
 PID=$!
 sleep 3 # wait for sever startup
 
-PORT="$(cat 3-HTTP/port.txt)"
-URL="http://localhost:$PORT/MiniLISP/file"
+PORT="$(cat 3-HTTP/public-port.txt)"
+URL="http://localhost:$PORT/file"
 
 TOTAL=""
 
