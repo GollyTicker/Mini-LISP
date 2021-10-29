@@ -7,10 +7,10 @@ RUN apt-get update && apt-get install -y haskell-platform
 RUN cabal update && cabal install command MissingH firefly Unixutils
 
 # install node and npm
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && apt-get install -y nodejs
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && apt-get install -y nodejs
 RUN npm install -g serve
 
-RUN nodejs --version
+RUN node --version
 RUN npm --version
 RUN g++ --version
 RUN ghc --version
