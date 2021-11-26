@@ -28,7 +28,8 @@ readme:
 	./2-readme-generator/generate-readme.sh
 
 save-backend-address:
-	dig @resolver4.opendns.com ${BACKEND_DOMAIN_NAME} +short > 3-HTTP/http-backend-address.txt
+	echo -n "https://" > 3-HTTP/http-backend-address.txt
+	dig @resolver4.opendns.com ${BACKEND_DOMAIN_NAME} +short >> 3-HTTP/http-backend-address.txt
 
 build: save-backend-address
 	docker build -f 5-docker/Dockerfile -t ${IMG} .
