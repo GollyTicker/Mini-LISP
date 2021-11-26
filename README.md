@@ -69,7 +69,6 @@ To deploy locally, run `./restart-service.sh`.
 For further debugging purposes, one can use `make docker-bash` to build and connect to a terminal in the container. The server can be run via `make docker-server` at the port in `3-HTTP/port.txt`.
 
 To debug locally:
-* in Makefile comment out the build dependency `save-backend-address` for the rule `build`
 * set `publicPath` in vue.config.js to `/`
 * set `3-HTTP/http-backend-address.txt` to `http://localhost`
 * set `3-HTTP/http-backend-path` to an empty string
