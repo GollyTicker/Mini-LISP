@@ -51,6 +51,10 @@ docker-compose-dev:
 	docker-compose ${USE_COMPOSE} ${USE_COMPOSE_DEV} rm -f
 	docker-compose ${USE_COMPOSE} ${USE_COMPOSE_DEV} up --build -d
 
+update-npm-dependencies:
+	docker run -v ${PWD}/4-scratchpad:/web -it minilisp:v1 /bin/sh -c "cd /web && npm update"
+	docker run -v ${PWD}/4-scratchpad:/web -it minilisp:v1 /bin/sh -c "cd /web && npm audit fix"
+
 shutdown:
 	docker-compose -f 5-docker/docker-compose.yml down
 

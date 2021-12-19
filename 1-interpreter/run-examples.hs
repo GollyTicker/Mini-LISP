@@ -17,8 +17,8 @@ runTests = zipWithM ( \inp ex ->
       Stdout out' <- command [] "bin/MiniLISP" ["-e",inp]
       let out = init out' -- ignore \n at end
       if (out == ex)
-        then putStrLn (":) | " ++ inp ++ " => " ++ ex)
-        else putStrLn ("XX | " ++ inp ++ " => " ++ ex ++ ", but got: " ++ out )
+        then putStrLn ("✅ | " ++ inp ++ " => " ++ ex)
+        else putStrLn ("😵 | " ++ inp ++ " => " ++ ex ++ ", but got: " ++ out )
       return (out == ex)
   )
 
@@ -53,5 +53,5 @@ main = do
       else return []
 
   if (and res1 && and res2)
-    then putStrLn "*+++ All tests passed! +++*" >> exitSuccess
+    then putStrLn "⭐⭐⭐ All tests passed! ⭐⭐⭐" >> exitSuccess
     else putStrLn "*XXXXXXXXXXXXXXX Some tests failed! XXXXXXXXXXXXXXX*" >> exitFailure
