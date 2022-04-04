@@ -71,7 +71,7 @@ For further debugging purposes, one can use `make docker-bash` to build and conn
 To debug locally:
 * set `publicPath` in vue.config.js to `/`
 * set `3-HTTP/http-backend-address.txt` to `http://localhost:<port>` where `port` is `3-HTTP/port.txt`
-* set `3-HTTP/http-backend-path` to an empty string
+* set `3-HTTP/http-backend-path.txt` to an empty string
 and then run `make build && ./restart-service.sh --dev` to start all services in dev mode.
 Finally, open the website at `http://localhost`
 
