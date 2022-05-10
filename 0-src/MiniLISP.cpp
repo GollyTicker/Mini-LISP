@@ -1,6 +1,8 @@
 #include<iostream>
 #include<map>
 #include<exception>
+#include <optional>
+
 using namespace std;
 
 const bool debug = false;

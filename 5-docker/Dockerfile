@@ -1,4 +1,4 @@
-FROM gcc:10.2
+FROM gcc:12.1
 # start with gcc
 RUN echo "============ This will take a few minutes.... ============"
 
@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y haskell-platform
 RUN cabal update && cabal install command MissingH firefly Unixutils
 
 # install node and npm
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && apt-get install -y nodejs
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && apt-get install -y nodejs
 RUN npm install -g serve
 
 RUN node --version
@@ -24,7 +24,7 @@ RUN mkdir tmp bin
 # install npm dependencies
 RUN mkdir 4-scratchpad
 COPY 4-scratchpad/package*.json ./4-scratchpad/
-RUN (cd 4-scratchpad && npm install)
+RUN (cd 4-scratchpad && npm ci)
 
 # copy each stage and compile/build it
 

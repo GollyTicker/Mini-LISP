@@ -62,7 +62,6 @@ export default {
       event.preventDefault();
     },
     updateHighlighting() {
-      console.log("updateHighlighting: text " + (textIsUnchanged()?"is same":"HAS CHANGED"))
       if (textIsUnchanged()) return;
 
       /* currect user inserted whitespace. which gets lost with syntax highlighting */
