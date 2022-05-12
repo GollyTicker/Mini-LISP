@@ -1,11 +1,12 @@
 version: "3.9"
 
 services:
-
   minilisp-scratchpad:
+    image: ${IMG_DEV}
     ports:
       - ${SCRATCHPAD_PORT}:${SCRATCHPAD_PORT}
 
   minilisp-http:
+    image: ${IMG_DEV}
     ports:
-    - ${LISP_HTTP_PORT}:${LISP_HTTP_PORT}
+      - ${LISP_HTTP_PORT}:${LISP_HTTP_PORT}

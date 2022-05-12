@@ -1,4 +1,5 @@
 export IMG := minilisp:v1
+export IMG_DEV := minilisp:dev
 export IMG_FILE := minilisp_v1.tar.gz
 export TESTER := minilisp-tester
 export LISP_HTTPER := minilisp-http
@@ -9,8 +10,9 @@ export EXPOSE_LISP := -p ${LISP_HTTP_PORT}:${LISP_HTTP_PORT}
 export EXPOSE_SCRATCHPAD := -p ${SCRATCHPAD_PORT}:${SCRATCHPAD_PORT}
 export DEFAULT_ARGS_NO_TTY := ${EXPOSE_LISP} ${IMG}
 export DEFAULT_ARGS := -it ${DEFAULT_ARGS_NO_TTY}
+export DEFAULT_ARGS_DEV := -it ${EXPOSE_LISP} ${IMG_DEV}
 export SCRATCHPAD_ARGS := ${EXPOSE_SCRATCHPAD} ${IMG}
-export LISP_HTTP_CMD := runhaskell 3-HTTP/HTTP.hs
+export LISP_HTTP_CMD := bin/httpServer
 export SCRATCHPAD_CMD := serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
 export USE_COMPOSE := -f 5-docker/docker-compose.yml
 export USE_COMPOSE_DEV := -f 5-docker/docker-compose-dev.yml
@@ -28,7 +30,8 @@ readme:
 	./2-readme-generator/generate-readme.sh
 
 build:
-	docker build -f 5-docker/Dockerfile -t ${IMG} .
+	docker build -f 5-docker/Dockerfile --target builder -t ${IMG_DEV} .
+	docker build -f 5-docker/Dockerfile --target final   -t ${IMG}     .
 
 save-image-to-disk: build
 	@echo "Saving image to disk.... (takes a few minutes)"
@@ -63,7 +66,7 @@ docker-bash: build
 
 # for manual server
 docker-server: build
-	docker run --rm ${DEFAULT_ARGS} runhaskell 3-HTTP/HTTP.hs
+	docker run --rm ${DEFAULT_ARGS} bin/httpServer
 
 # production docker server. find logs via $ docker logs minilisp-http
 docker-server-prod:
@@ -71,18 +74,34 @@ docker-server-prod:
 	docker run --name ${LISP_HTTPER} ${DEFAULT_ARGS_NO_TTY} ${LISP_HTTP_CMD}
 
 # used in test.sh script
-docker-server-no-tty:
-	docker run --rm ${DEFAULT_ARGS_NO_TTY} runhaskell 3-HTTP/HTTP.hs
+docker-server-no-tty: build docker-stop-server-no-tty
+	docker run -d --name server-no-tty --rm ${DEFAULT_ARGS_NO_TTY} bin/httpServer
 
+docker-stop-server-no-tty:
+	docker stop server-no-tty || true
+	docker rm -f server-no-tty || true
+	
 repl: build
 	docker run --rm ${DEFAULT_ARGS} bin/MiniLISP
 
 docker-scratchpad: build
 	docker run --rm --name ${SCRATCHPADER} ${SCRATCHPAD_ARGS} ${SCRATCHPAD_CMD}
 
+start-dev:
+	make build
+	./restart-service.sh --dev	
+
+stop:
+	./stop-services.sh
+
 # TODO: if any test fails, then make test should also fail
 test: build test-0-reset
-	docker run --name ${TESTER} ${DEFAULT_ARGS} bash 2-readme-generator/generate-readme.sh && docker cp ${TESTER}:/app/README.md README.md
+	docker run \
+		-v $$PWD/1-interpreter:/app/1-interpreter \
+		-v $$PWD/2-readme-generator:/app/2-readme-generator \
+		--name ${TESTER} ${DEFAULT_ARGS_DEV} bash -c \
+		"cabal update && cabal install --lib --global command split && 2-readme-generator/generate-readme.sh" \
+	docker cp ${TESTER}:/app/README.md README.md
 	make test-0-reset
 	make test-server
 

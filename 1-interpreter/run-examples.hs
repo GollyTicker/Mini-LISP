@@ -3,7 +3,7 @@ import System.Command
 import System.Exit
 import Control.Monad
 import Data.List
-import Data.String.Utils
+import Data.List.Split
 
 skip_rule = "#ignore-embed-eval#"
 longTests = True
@@ -29,6 +29,8 @@ testCases =
 embedEvalCases = takeWhile (\s -> not (isInfixOf "#ignore-embed-eval-following#" s))
 
 splitLines = lines . replace "\\\n" "" -- use backslash for multi-line expressions
+
+replace q v = intercalate v . splitOn q
 
 main = do
   inputs <- splitLines <$> readFile "1-interpreter/examples.in"

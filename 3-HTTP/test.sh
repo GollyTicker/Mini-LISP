@@ -1,9 +1,6 @@
 #/bin/bash
 
-make build
-
-make docker-server-no-tty 2> /dev/null > /dev/null &
-PID=$!
+make docker-server-no-tty
 sleep 3 # wait for sever startup
 
 PORT="$(cat 3-HTTP/port.txt)"
@@ -18,10 +15,9 @@ RES="$(curl -G --max-time 10 --data-urlencode "value=(eval '(cond ('() 'b) ('t '
 [ $RES = a ] || TOTAL="failed"
 
 RES="$(curl -G --max-time 10 --data-urlencode "value=(eval '((lambda (f n ig) (cond ((eq n '0) '0) ('t (+ n (f (decr n) ))))) '+ '2 '#ignore-embed-eval#) (environment))" "$URL")"
-(echo "$RES" | grep "Time Limit" > /dev/null ) || TOTAL="failed"
+(echo "$RES" | grep "Time Limit" >/dev/null) || TOTAL="failed"
 
-kill $PID 2> /dev/null
-sleep 1 # let server fully finish
+make docker-stop-server-no-tty
 
 echo "Testing REST API finished."
 
