@@ -40,14 +40,14 @@ COPY 2-readme-generator ./2-readme-generator
 
 
 
-FROM node:16-slim as final
+FROM nginx:mainline as final
 WORKDIR /app
-RUN npm install -g serve
 
 COPY --from=builder /app/bin /app/bin
 COPY --from=builder /app/1-interpreter /app/1-interpreter
 COPY --from=builder /app/3-HTTP /app/3-HTTP
 COPY --from=builder /app/4-scratchpad/dist /app/4-scratchpad/dist
+COPY 4-scratchpad/nginx.conf /app/4-scratchpad/nginx.conf
+COPY 4-scratchpad/mime.types /app/4-scratchpad/mime.types
 
-# build instructions for internal testing
-COPY Makefile ./
+CMD ["sh","-c"]

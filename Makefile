@@ -13,7 +13,8 @@ export DEFAULT_ARGS := -it ${DEFAULT_ARGS_NO_TTY}
 export DEFAULT_ARGS_DEV := -it ${EXPOSE_LISP} ${IMG_DEV}
 export SCRATCHPAD_ARGS := ${EXPOSE_SCRATCHPAD} ${IMG}
 export LISP_HTTP_CMD := bin/httpServer
-export SCRATCHPAD_CMD := serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
+export SCRATCHPAD_CMD := nginx -c /app/4-scratchpad/nginx.conf
+export SCRATCHPAD_DEV_CMD := serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
 export USE_COMPOSE := -f 5-docker/docker-compose.yml
 export USE_COMPOSE_DEV := -f 5-docker/docker-compose-dev.yml
 
