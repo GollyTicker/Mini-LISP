@@ -3,6 +3,7 @@ version: "3.9"
 services:
   minilisp-scratchpad:
     image: ${IMG_DEV}
+    command: ${SCRATCHPAD_DEV_CMD}
     ports:
       - ${SCRATCHPAD_PORT}:${SCRATCHPAD_PORT}
 
