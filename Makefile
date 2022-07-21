@@ -25,7 +25,13 @@ export BACKEND_DOMAIN_NAME := swaneet.eu
 # 1. locally build image and save image to disk: make save-image-to-disk
 # 2. deploy image to server: make deploy-image-to-server
 # 3. on server load image from disk: make load-image-from-disk
-# 4. on server start app: ./restart-server.sh
+# 4. on server start app: ./restart-service.sh
+# OR simply: make build-deploy-to-server
+
+build-deploy-to-server:
+	save-image-to-disk
+	deploy-image-to-server
+	ssh $$(cat private-login.txt) "cd ~/Mini-LISP && make load-image-from-disk && ./restart-service.sh"
 
 readme:
 	./2-readme-generator/generate-readme.sh
