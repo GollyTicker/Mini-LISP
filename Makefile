@@ -29,8 +29,8 @@ export BACKEND_DOMAIN_NAME := swaneet.eu
 # OR simply: make build-deploy-to-server
 
 build-deploy-to-server:
-	save-image-to-disk
-	deploy-image-to-server
+	make save-image-to-disk
+	make deploy-image-to-server
 	ssh $$(cat private-login.txt) "cd ~/Mini-LISP && make load-image-from-disk && ./restart-service.sh"
 
 readme:
@@ -41,7 +41,7 @@ build:
 	docker build -f 5-docker/Dockerfile --target final   -t ${IMG}     .
 
 save-image-to-disk: build
-	@echo "Saving image to disk.... (takes a few minutes)"
+	@echo "Saving image to disk.... (takes around a minute)"
 	docker save ${IMG} | gzip > ${IMG_FILE}
 	@echo "Done."
 
@@ -49,7 +49,7 @@ deploy-image-to-server: # save-image-to-disk
 	scp ${IMG_FILE} $$(cat private-login.txt):~/Mini-LISP/
 
 load-image-from-disk:
-	@echo "Loading image from disk.... (takes a few minutes)"
+	@echo "Loading image from disk.... (takes around a minute)"
 	gzip -d --stdout ${IMG_FILE} | docker load
 	@echo "Done."
 
