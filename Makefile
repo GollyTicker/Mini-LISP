@@ -107,7 +107,7 @@ test: build test-0-reset
 		-v $$PWD/1-interpreter:/app/1-interpreter \
 		-v $$PWD/2-readme-generator:/app/2-readme-generator \
 		--name ${TESTER} ${DEFAULT_ARGS_DEV} bash -c \
-		"cabal update && cabal install --lib --global command split && 2-readme-generator/generate-readme.sh" \
+		"cabal update && cabal install --lib --global split && 2-readme-generator/generate-readme.sh" \
 	docker cp ${TESTER}:/app/README.md README.md
 	make test-0-reset
 	make test-server
