@@ -19,7 +19,7 @@ RUN mkdir tmp bin
 # install npm dependencies
 RUN mkdir 4-scratchpad
 COPY 4-scratchpad/package*.json ./4-scratchpad/
-RUN (cd 4-scratchpad && npm ci)
+RUN (cd 4-scratchpad && npm ci --ignore-scripts)
 
 # copy each stage and compile/build it
 

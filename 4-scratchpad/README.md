@@ -2,7 +2,7 @@
 
 ## Project setup
 ```
-npm install
+npm install --ignore-scripts
 ```
 
 ### Compiles and hot-reloads for development
