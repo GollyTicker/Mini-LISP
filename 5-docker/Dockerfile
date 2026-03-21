@@ -43,6 +43,9 @@ COPY 2-readme-generator ./2-readme-generator
 FROM nginx:stable as final
 WORKDIR /app
 
+RUN apt update && apt install libpcre3 libpcre3-dev
+# fix missing library for nginx
+
 COPY --from=builder /app/bin /app/bin
 COPY --from=builder /app/1-interpreter /app/1-interpreter
 COPY --from=builder /app/3-HTTP /app/3-HTTP
