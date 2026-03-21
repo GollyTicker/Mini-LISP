@@ -40,10 +40,10 @@ COPY 2-readme-generator ./2-readme-generator
 
 
 
-FROM nginx:stable as final
+FROM nginx:bookworm as final
 WORKDIR /app
 
-RUN apt update && apt install libpcre3 libpcre3-dev
+RUN apt-get update && apt-get install -y libpcre3 libpcre3-dev
 # fix missing library for nginx
 
 COPY --from=builder /app/bin /app/bin
