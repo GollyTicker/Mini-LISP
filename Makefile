@@ -18,7 +18,7 @@ export SCRATCHPAD_DEV_CMD := serve -s -l ${SCRATCHPAD_PORT} 4-scratchpad/dist
 export USE_COMPOSE := -f 5-docker/docker-compose.yml
 export USE_COMPOSE_DEV := -f 5-docker/docker-compose-dev.yml
 
-export BACKEND_DOMAIN_NAME := swaneet.eu
+export BACKEND_DOMAIN_NAME := ayake.net
 
 # Steps to deploy onto server
 # 0. write <user>@<server-hostname> into private-login.txt
